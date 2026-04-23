@@ -1,0 +1,27 @@
+[
+  {
+    "year": "1985",
+    "description": "Porky's Meat Market was founded in Windhoek, Namibia, with a vision to provide premium quality meat products to the local community.",
+    "image": "/assets/images/timeline/1985.jpg"
+  },
+  {
+    "year": "1995",
+    "description": "Expanded operations to include wholesale distribution, serving restaurants and hotels across Windhoek.",
+    "image": "/assets/images/timeline/1995.jpg"
+  },
+  {
+    "year": "2005",
+    "description": "Opened our state-of-the-art cold storage facility, ensuring the highest quality standards for meat preservation.",
+    "image": "/assets/images/timeline/2005.jpg"
+  },
+  {
+    "year": "2015",
+    "description": "Launched B2B portal for wholesale buyers, streamlining the ordering process for businesses.",
+    "image": "/assets/images/timeline/2015.jpg"
+  },
+  {
+    "year": "2024",
+    "description": "Introduced our digital platform, making premium meat products accessible to retail customers, B2B buyers, and hawker vendors online.",
+    "image": "/assets/images/timeline/2024.jpg"
+  }
+]

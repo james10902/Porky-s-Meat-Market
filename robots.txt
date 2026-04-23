@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /api
+Sitemap: https://porkymeatmarket.com/sitemap.xml
