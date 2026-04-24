@@ -1,0 +1,233 @@
+/* Design System - Industrial Premium Theme */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=Bebas+Neue&display=swap');
+
+:root {
+  /* Color Palette */
+  --color-black: #0a0a0a;
+  --color-amber: #F5A623;
+  --color-amber-light: #FFD166;
+  --color-crimson: #8B0000;
+  --color-crimson-light: #C0392B;
+
+  /* Secondary Colors */
+  --color-dark-gray: #141414;
+  --color-mid-gray: #1c1c1c;
+  --color-light-gray: #F5F5F5;
+  --color-border: #242424;
+  --color-border-light: #333333;
+  --color-text-primary: #F0EDE8;
+  --color-text-secondary: #9A9590;
+  --color-text-muted: #5A5550;
+
+  /* Functional Colors */
+  --color-success: #27AE60;
+  --color-warning: #F39C12;
+  --color-error: #E74C3C;
+  --color-info: #2980B9;
+
+  /* Spacing */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  --spacing-2xl: 3rem;
+  --spacing-3xl: 5rem;
+
+  /* Typography */
+  --font-family-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-family-display: 'Bebas Neue', 'Inter', sans-serif;
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-md: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.375rem;
+  --font-size-2xl: 1.875rem;
+  --font-size-3xl: 2.5rem;
+  --font-weight-light: 300;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-black: 900;
+
+  /* Border Radius */
+  --border-radius-sm: 0.25rem;
+  --border-radius-md: 0.5rem;
+  --border-radius-lg: 0.75rem;
+  --border-radius-xl: 1.25rem;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.6);
+  --shadow-amber: 0 4px 20px rgba(245, 166, 35, 0.2);
+  --shadow-crimson: 0 4px 20px rgba(139, 0, 0, 0.3);
+
+  /* Transitions */
+  --transition-fast: 150ms ease;
+  --transition-base: 250ms ease;
+  --transition-slow: 400ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Z-index Scale */
+  --z-base: 1;
+  --z-dropdown: 100;
+  --z-sticky: 500;
+  --z-fixed: 1000;
+  --z-modal: 1100;
+  --z-tooltip: 1200;
+  --z-cart: 1050;
+}
+
+/* =====================
+   Base Reset & Global
+   ===================== */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  color-scheme: dark;
+  background-color: var(--color-black);
+  color: var(--color-text-primary);
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html, body {
+  font-family: var(--font-family-primary);
+  line-height: 1.6;
+  background-color: var(--color-black);
+  min-height: 100%;
+}
+
+/* =====================
+   Typography
+   ===================== */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: var(--font-weight-bold);
+  line-height: 1.15;
+  margin-bottom: var(--spacing-md);
+  color: var(--color-text-primary);
+  letter-spacing: -0.01em;
+}
+
+h1 { font-size: clamp(2rem, 5vw, 3.5rem); font-weight: var(--font-weight-black); }
+h2 { font-size: clamp(1.5rem, 3.5vw, 2.25rem); font-weight: var(--font-weight-black); }
+h3 { font-size: var(--font-size-xl); }
+h4 { font-size: var(--font-size-lg); }
+h5 { font-size: var(--font-size-md); }
+h6 { font-size: var(--font-size-sm); }
+
+p {
+  margin-bottom: var(--spacing-md);
+  color: var(--color-text-secondary);
+  line-height: 1.75;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+ul, ol {
+  list-style: none;
+}
+
+button {
+  font-family: var(--font-family-primary);
+  cursor: pointer;
+}
+
+/* =====================
+   Accent Helpers
+   ===================== */
+.accent-amber  { color: var(--color-amber); }
+.accent-crimson { color: var(--color-crimson-light); }
+
+/* =====================
+   Layout Utilities
+   ===================== */
+.flex         { display: flex; }
+.flex-col     { flex-direction: column; }
+.flex-center  { display: flex; align-items: center; justify-content: center; }
+.flex-between { display: flex; align-items: center; justify-content: space-between; }
+.grid         { display: grid; }
+.grid-cols-2  { grid-template-columns: repeat(2, 1fr); }
+.grid-cols-3  { grid-template-columns: repeat(3, 1fr); }
+.grid-cols-4  { grid-template-columns: repeat(4, 1fr); }
+
+@media (max-width: 768px) {
+  .grid-cols-2, .grid-cols-3, .grid-cols-4 { grid-template-columns: 1fr; }
+}
+
+/* =====================
+   Light Theme (Day Mode)
+   ===================== */
+[data-theme="light"] {
+  --color-black:          #FAFAF8;
+  --color-dark-gray:      #F0EDE8;
+  --color-mid-gray:       #E8E4DF;
+  --color-border:         #DDD9D4;
+  --color-border-light:   #C8C4BF;
+  --color-text-primary:   #1A1714;
+  --color-text-secondary: #5A5550;
+  --color-text-muted:     #8A8580;
+
+  --shadow-sm:  0 1px 4px rgba(0, 0, 0, 0.08);
+  --shadow-md:  0 4px 16px rgba(0, 0, 0, 0.12);
+  --shadow-lg:  0 12px 40px rgba(0, 0, 0, 0.16);
+  --shadow-amber: 0 4px 20px rgba(245, 166, 35, 0.25);
+}
+
+[data-theme="light"] html,
+[data-theme="light"] body {
+  background-color: var(--color-black);
+  color: var(--color-text-primary);
+}
+
+[data-theme="light"] nav {
+  background-color: rgba(250, 250, 248, 0.96);
+  border-bottom-color: var(--color-border);
+}
+
+[data-theme="light"] nav.scrolled {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Theme toggle button */
+.theme-toggle-btn {
+  position: relative;
+  background: none;
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--border-radius-md);
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--transition-base);
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.theme-toggle-btn:hover {
+  border-color: var(--color-amber);
+  background-color: rgba(245, 166, 35, 0.06);
+}
+
+.theme-toggle-btn.theme-light {
+  background-color: rgba(245, 166, 35, 0.08);
+  border-color: var(--color-amber);
+}

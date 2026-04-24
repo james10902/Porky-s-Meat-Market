@@ -1,34 +1,81 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Page not found">
-    <title>404 - Page Not Found</title>
-    <link rel="stylesheet" href="css/variables.css">
-    <link rel="stylesheet" href="css/base.css">
-    <link rel="stylesheet" href="css/layout.css">
-    <link rel="stylesheet" href="css/components.css">
-    <link rel="stylesheet" href="css/responsive.css">
-    <link rel="stylesheet" href="css/dark-mode.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Page Not Found — Porky's Meat Market</title>
+  <link rel="stylesheet" href="/css/design-system.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <link rel="stylesheet" href="/css/footer.css">
+  <style>
+    .error-page {
+      min-height: calc(100vh - 72px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: var(--spacing-3xl) var(--spacing-xl);
+      background-color: var(--color-black);
+    }
+    .error-inner { max-width: 560px; }
+    .error-code {
+      font-size: clamp(6rem, 20vw, 12rem);
+      font-weight: var(--font-weight-black);
+      line-height: 1;
+      color: var(--color-amber);
+      opacity: 0.15;
+      letter-spacing: -0.05em;
+      margin-bottom: 0;
+    }
+    .error-title {
+      font-size: clamp(1.5rem, 4vw, 2.5rem);
+      font-weight: var(--font-weight-black);
+      color: var(--color-text-primary);
+      margin-bottom: var(--spacing-md);
+      letter-spacing: -0.01em;
+    }
+    .error-desc {
+      font-size: var(--font-size-lg);
+      color: var(--color-text-secondary);
+      margin-bottom: var(--spacing-2xl);
+    }
+    .error-actions {
+      display: flex;
+      gap: var(--spacing-md);
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+  </style>
 </head>
 <body>
-    <header>
-        <nav>
-            <h1>Porky's Meat Market</h1>
-        </nav>
-    </header>
-    
-    <main>
-        <section class="error-page">
-            <h2>404 - Page Not Found</h2>
-            <p>The page you are looking for does not exist.</p>
-            <a href="index.html" class="btn btn-primary">Go Home</a>
-        </section>
-    </main>
-    
-    <footer>
-        <p>&copy; 2024 Porky's Meat Market. All rights reserved.</p>
-    </footer>
+  <nav id="navbar" role="navigation" aria-label="Main navigation">
+    <div class="container nav-container">
+      <div class="logo">
+        <a href="/" class="logo-link">
+          <img src="/assets/Images/Porky logo.jpg" alt="Porky's Meat Market" class="logo-img">
+          <span class="logo-text">PORKY'S MEAT<br>MARKET</span>
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="error-page">
+    <div class="error-inner">
+      <p class="error-code">404</p>
+      <h1 class="error-title">Page Not Found</h1>
+      <p class="error-desc">The page you're looking for doesn't exist or has been moved. Let's get you back on track.</p>
+      <div class="error-actions">
+        <a href="/" class="btn btn-quote btn-lg">← Back to Home</a>
+        <a href="/pages/products.html" class="btn btn-secondary btn-lg">Browse Products</a>
+        <a href="/pages/contact.html" class="btn btn-secondary btn-lg">Contact Us</a>
+      </div>
+    </div>
+  </main>
+
+  <script src="/js/utils/dom.js" defer></script>
+  <script src="/js/modules/theme.js" defer></script>
+  <script src="/js/services/api.js" defer></script>
+  <script src="/js/modules/auth.js" defer></script>
+  <script src="/js/modules/nav.js" defer></script>
 </body>
 </html>

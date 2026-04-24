@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Sign in or create an account — Porky's Meat Market">
+  <title>Sign In — Porky's Meat Market</title>
+
+  <link rel="stylesheet" href="/css/design-system.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <link rel="stylesheet" href="/css/footer.css">
+  <link rel="stylesheet" href="/css/pages/login.css">
+</head>
+<body class="login-page">
+
+  <!-- Navigation -->
+  <nav id="navbar" role="navigation" aria-label="Main navigation">
+    <div class="container nav-container">
+      <div class="logo">
+        <a href="/" class="logo-link">
+          <img src="/assets/Images/Porky logo.jpg" alt="Porky's Meat Market" class="logo-img">
+          <span class="logo-text">PORKY'S MEAT<br>MARKET</span>
+        </a>
+      </div>
+      <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+      <ul class="nav-menu" id="nav-menu">
+        <li><a href="/" class="nav-link">HOME</a></li>
+        <li><a href="/pages/products.html" class="nav-link">PRODUCTS</a></li>
+        <li><a href="/pages/heritage.html" class="nav-link">HERITAGE</a></li>
+        <li><a href="/pages/wholesale.html" class="nav-link">WHOLESALE</a></li>
+        <li><a href="/pages/contact.html" class="nav-link">CONTACT</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Auth Section -->
+  <main class="auth-main">
+    <div class="auth-split">
+
+      <!-- Left — branding panel -->
+      <div class="auth-brand" style="background-image: url('/assets/Background Image.jpg');">
+        <div class="auth-brand-overlay"></div>
+        <div class="auth-brand-content">
+          <img src="/assets/Images/Porky logo.jpg" alt="Porky's Meat Market" class="auth-brand-logo">
+          <h1>PORKY'S<br>MEAT MARKET</h1>
+          <p>Freshness starts here. Sign in to browse our full catalogue, place orders, and track deliveries.</p>
+          <div class="auth-brand-stats">
+            <div><strong>35</strong><span>Years</span></div>
+            <div><strong>500+</strong><span>B2B Clients</span></div>
+            <div><strong>24/7</strong><span>Cold Chain</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right — form panel -->
+      <div class="auth-form-panel">
+        <div class="auth-form-wrap">
+
+          <!-- Tab switcher -->
+          <div class="auth-tabs" role="tablist">
+            <button class="auth-tab active" id="tab-login" role="tab" aria-selected="true" aria-controls="panel-login" onclick="AuthPage.showTab('login')">Sign In</button>
+            <button class="auth-tab" id="tab-register" role="tab" aria-selected="false" aria-controls="panel-register" onclick="AuthPage.showTab('register')">Create Account</button>
+          </div>
+
+          <!-- Alert area -->
+          <div id="auth-alert" class="auth-alert" style="display:none;" role="alert"></div>
+
+          <!-- LOGIN PANEL -->
+          <div id="panel-login" class="auth-panel active" role="tabpanel" aria-labelledby="tab-login">
+            <h2>Welcome back</h2>
+            <p class="auth-subtitle">Sign in to your account to continue shopping.</p>
+
+            <form id="login-form" class="auth-form" novalidate>
+              <div class="form-group">
+                <label for="login-email">Email address</label>
+                <input type="email" id="login-email" name="email" placeholder="you@example.com" autocomplete="email" required>
+              </div>
+              <div class="form-group">
+                <label for="login-password">
+                  Password
+                  <a href="#" class="auth-forgot" onclick="AuthPage.showForgot(event)">Forgot password?</a>
+                </label>
+                <div class="input-password-wrap">
+                  <input type="password" id="login-password" name="password" placeholder="••••••••" autocomplete="current-password" required>
+                  <button type="button" class="toggle-password" aria-label="Show password" onclick="AuthPage.togglePassword('login-password', this)">👁</button>
+                </div>
+              </div>
+              <div class="form-group form-check">
+                <label class="check-label">
+                  <input type="checkbox" id="remember-me" name="remember">
+                  <span>Keep me signed in</span>
+                </label>
+              </div>
+              <button type="submit" class="btn btn-quote btn-lg auth-submit" id="login-btn">
+                <span class="btn-text">SIGN IN</span>
+                <span class="btn-spinner" style="display:none;"></span>
+              </button>
+            </form>
+
+            <p class="auth-switch">Don't have an account? <a href="#" onclick="AuthPage.showTab('register'); return false;">Create one free</a></p>
+          </div>
+
+          <!-- REGISTER PANEL -->
+          <div id="panel-register" class="auth-panel" role="tabpanel" aria-labelledby="tab-register">
+            <h2>Create your account</h2>
+            <p class="auth-subtitle">Join thousands of customers ordering fresh meat daily.</p>
+
+            <form id="register-form" class="auth-form" novalidate>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="reg-firstname">First name</label>
+                  <input type="text" id="reg-firstname" name="firstname" placeholder="John" autocomplete="given-name" required>
+                </div>
+                <div class="form-group">
+                  <label for="reg-lastname">Last name</label>
+                  <input type="text" id="reg-lastname" name="lastname" placeholder="Smith" autocomplete="family-name" required>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="reg-email">Email address</label>
+                <input type="email" id="reg-email" name="email" placeholder="you@example.com" autocomplete="email" required>
+              </div>
+              <div class="form-group">
+                <label for="reg-phone">Phone number</label>
+                <input type="tel" id="reg-phone" name="phone" placeholder="+264 61 000 000" autocomplete="tel">
+              </div>
+              <div class="form-group">
+                <label for="reg-password">Password</label>
+                <div class="input-password-wrap">
+                  <input type="password" id="reg-password" name="password" placeholder="Min. 8 characters" autocomplete="new-password" required minlength="8">
+                  <button type="button" class="toggle-password" aria-label="Show password" onclick="AuthPage.togglePassword('reg-password', this)">👁</button>
+                </div>
+                <div class="password-strength" id="password-strength"></div>
+              </div>
+              <div class="form-group">
+                <label for="reg-confirm">Confirm password</label>
+                <div class="input-password-wrap">
+                  <input type="password" id="reg-confirm" name="confirm" placeholder="Repeat password" autocomplete="new-password" required>
+                  <button type="button" class="toggle-password" aria-label="Show password" onclick="AuthPage.togglePassword('reg-confirm', this)">👁</button>
+                </div>
+              </div>
+              <div class="form-group form-check">
+                <label class="check-label">
+                  <input type="checkbox" id="agree-terms" name="terms" required>
+                  <span>I agree to the <a href="#" onclick="return false;">Terms &amp; Conditions</a></span>
+                </label>
+              </div>
+              <button type="submit" class="btn btn-quote btn-lg auth-submit" id="register-btn">
+                <span class="btn-text">CREATE ACCOUNT</span>
+                <span class="btn-spinner" style="display:none;"></span>
+              </button>
+            </form>
+
+            <p class="auth-switch">Already have an account? <a href="#" onclick="AuthPage.showTab('login'); return false;">Sign in</a></p>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Scripts -->
+  <script src="/js/utils/dom.js" defer></script>
+  <script src="/js/services/api.js" defer></script>
+  <script src="/js/modules/auth.js" defer></script>
+  <script src="/js/modules/nav.js" defer></script>
+  <script src="/js/modules/authPage.js" defer></script>
+</body>
+</html>

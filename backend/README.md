@@ -1,203 +1,170 @@
-# Porky's Meat Market - Backend API
+# Porky's Meat Market — Backend API
 
-Node.js Express.js backend API for Porky's Meat Market Platform.
+Node.js + Express REST API backed by PostgreSQL.
 
-## Project Structure
+---
 
-```
-backend/
-├── src/
-│   ├── index.js                 # Main application entry point
-│   ├── config/
-│   │   └── database.js          # Database connection configuration
-│   ├── middleware/
-│   │   ├── auth.js              # Authentication & authorization
-│   │   ├── csrfProtection.js    # CSRF token protection
-│   │   ├── errorHandler.js      # Global error handling
-│   │   ├── requestLogger.js     # Request logging
-│   │   └── sanitizeInputs.js    # Input sanitization
-│   ├── routes/
-│   │   ├── auth.js              # Authentication endpoints
-│   │   ├── products.js          # Product endpoints
-│   │   ├── cart.js              # Shopping cart endpoints
-│   │   ├── orders.js            # Order endpoints
-│   │   └── admin.js             # Admin endpoints
-│   └── utils/
-│       ├── jwt.js               # JWT token utilities
-│       ├── password.js          # Password hashing utilities
-│       └── validation.js        # Input validation utilities
-├── .env.example                 # Environment variables template
-├── .gitignore                   # Git ignore rules
-├── package.json                 # Project dependencies
-└── README.md                    # This file
-```
-
-## Setup Instructions
-
-### 1. Install Dependencies
+## Quick Start
 
 ```bash
 cd backend
 npm install
-```
 
-### 2. Configure Environment Variables
-
-Copy `.env.example` to `.env` and update with your configuration:
-
-```bash
+# 1. Copy and configure environment variables
 cp .env.example .env
-```
+# Edit .env — set DB_PASSWORD and JWT_SECRET at minimum
 
-Edit `.env` with your settings:
-- Database credentials
-- JWT secret
-- CORS origin
-- Port number
+# 2. Create the PostgreSQL database
+createdb porkys_db
 
-### 3. Set Up Database
+# 3. Run migrations (creates all tables + triggers)
+npm run migrate
 
-Create PostgreSQL database:
+# 4. Seed categories and all 14 products
+npm run seed
 
-```bash
-createdb porky_market
-```
-
-### 4. Start Development Server
-
-```bash
+# 5. Start the development server (auto-restarts on changes)
 npm run dev
 ```
 
-The server will start on `http://localhost:3000` (or your configured PORT).
+The API runs at **http://localhost:3000**.  
+Health check: **http://localhost:3000/api/health**
 
-### 5. Verify Server is Running
+---
 
-Visit `http://localhost:3000/health` to verify the server is running.
+## Running Tests
 
-## Available Scripts
+Tests require a running PostgreSQL database (uses the same DB as dev).
 
-- `npm start` - Start production server
-- `npm run dev` - Start development server with hot reload (requires nodemon)
-- `npm test` - Run tests
-- `npm run lint` - Run ESLint
+```bash
+npm test
+```
 
-## API Endpoints
+Test files live in `src/tests/`. Each suite registers and cleans up its own test data.
 
-### Authentication
-- `POST /api/auth/register` - Register new user
-- `POST /api/auth/login` - Login user
-- `POST /api/auth/logout` - Logout user
-- `GET /api/auth/me` - Get current user
-- `POST /api/auth/refresh` - Refresh token
+---
 
-### Products
-- `GET /api/products` - Get all products
-- `GET /api/products/:id` - Get product by ID
-- `POST /api/products` - Create product (admin)
-- `PUT /api/products/:id` - Update product (admin)
-- `DELETE /api/products/:id` - Delete product (admin)
+## API Reference
 
-### Cart
-- `GET /api/cart` - Get user's cart
-- `POST /api/cart` - Add item to cart
-- `PUT /api/cart/:itemId` - Update cart item
-- `DELETE /api/cart/:itemId` - Remove cart item
+### Auth — `/api/auth`
 
-### Orders
-- `GET /api/orders` - Get user's orders
-- `GET /api/orders/:id` - Get order details
-- `POST /api/orders` - Create order
-- `PUT /api/orders/:id` - Update order (admin)
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| POST | `/register` | — | Create account → returns `{ token, user }` |
+| POST | `/login` | — | Sign in → returns `{ token, user }` |
+| GET | `/me` | ✅ | Current user profile |
+| PUT | `/profile` | ✅ | Update firstname / lastname / phone |
+| POST | `/change-password` | ✅ | Change password |
 
-### Admin
-- `GET /api/admin/dashboard` - Admin dashboard
-- `GET /api/admin/users` - Get all users
-- `PUT /api/admin/users/:id` - Update user
-- `DELETE /api/admin/users/:id` - Delete user
+### Products — `/api/products`
 
-## Security Features
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| GET | `/` | — | List products. Query: `category`, `search`, `sort` (name/price-low/price-high/newest), `page`, `limit` |
+| GET | `/featured` | — | Featured products (up to 8) |
+| GET | `/categories` | — | All categories with product counts |
+| GET | `/:id` | — | Single product |
+| POST | `/` | Admin | Create product |
+| PUT | `/:id` | Admin | Update product fields |
+| DELETE | `/:id` | Admin | Soft-delete (sets `is_active = FALSE`) |
 
-- **JWT Authentication**: Stateless authentication using JSON Web Tokens
-- **CSRF Protection**: CSRF token validation on state-changing requests
-- **Input Sanitization**: All inputs sanitized to prevent XSS attacks
-- **Password Hashing**: Bcrypt for secure password storage
-- **Rate Limiting**: API rate limiting to prevent abuse
-- **Helmet**: Security headers via Helmet middleware
-- **CORS**: Configurable CORS for frontend integration
+### Orders — `/api/orders`
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| POST | `/` | ✅ | Place order. Validates stock, calculates totals server-side |
+| GET | `/` | ✅ | My orders (with items) |
+| GET | `/admin/all` | Admin | All orders with pagination |
+| GET | `/:id` | ✅ | Order detail + delivery address + items |
+| GET | `/:id/tracking` | ✅ | Tracking steps for an order |
+| PATCH | `/:id/cancel` | ✅ | Cancel (PENDING or CONFIRMED only) |
+| PATCH | `/:id/status` | Admin | Update order status |
+
+**Order statuses:** `PENDING → CONFIRMED → IN_COLD_STORAGE → OUT_FOR_DELIVERY → DELIVERED`  
+**Payment methods:** `card`, `eft`, `mobile`, `cod`
+
+### Contact — `/api/contact`
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| POST | `/` | — | Submit contact message |
+| POST | `/wholesale` | — | Submit wholesale quote request |
+
+### Admin — `/api/admin`
+
+All routes require `role = 'admin'`.
+
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/dashboard` | Stats: orders, revenue, users, products, recent orders |
+| GET | `/users` | List users (search, paginate) |
+| GET | `/users/:id` | User detail + order history |
+| PATCH | `/users/:id/role` | Change user role |
+| PATCH | `/users/:id/active` | Enable / disable user |
+| GET | `/contact` | Contact messages (filter unread) |
+| PATCH | `/contact/:id/read` | Mark message as read |
+| GET | `/wholesale` | Wholesale quote requests |
+| PATCH | `/wholesale/:id/status` | Update quote status |
+
+### Health
+
+```
+GET /api/health   →  { status, db, timestamp }
+```
+
+---
+
+## Database Schema
+
+```
+users                — customer accounts (UUID PK)
+categories           — product categories
+products             — catalogue with pricing, stock, featured flag
+orders               — placed orders (UUID PK, order_number)
+order_items          — line items per order (price snapshot)
+delivery_addresses   — delivery details per order
+wholesale_quotes     — B2B quote requests
+contact_messages     — contact form submissions
+```
+
+All tables have `created_at`. `users`, `products`, `orders` also have `updated_at` maintained by a trigger.
+
+---
 
 ## Environment Variables
 
-```
-NODE_ENV=development
-PORT=3000
-HOST=localhost
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `PORT` | No | Server port (default: 3000) |
+| `NODE_ENV` | No | `development` or `production` |
+| `DB_HOST` | Yes | PostgreSQL host |
+| `DB_PORT` | No | PostgreSQL port (default: 5432) |
+| `DB_NAME` | Yes | Database name |
+| `DB_USER` | Yes | Database user |
+| `DB_PASSWORD` | Yes | Database password |
+| `JWT_SECRET` | Yes | Secret for signing JWTs — **must be changed in production** |
+| `JWT_EXPIRES_IN` | No | Token lifetime (default: 7d) |
+| `ALLOWED_ORIGINS` | No | CORS whitelist, comma-separated |
 
-DATABASE_URL=postgresql://user:password@localhost:5432/porky_market
-DB_HOST=localhost
-DB_PORT=5432
-DB_NAME=porky_market
-DB_USER=postgres
-DB_PASSWORD=password
+---
 
-JWT_SECRET=your_jwt_secret_key_here
-JWT_EXPIRY=7d
+## Security
 
-CORS_ORIGIN=http://localhost:8000
+- **Helmet** — sets secure HTTP headers
+- **CORS** — origin whitelist via `ALLOWED_ORIGINS`
+- **Rate limiting** — 200 req/15min general; 20 req/15min on auth endpoints
+- **bcryptjs** — passwords hashed with cost factor 12
+- **JWT** — stateless auth, 7-day expiry
+- **express-validator** — all inputs validated and sanitised
+- **Parameterised queries** — no raw string interpolation in SQL
+- **Server-side price calculation** — order totals always computed from DB prices, never trusted from client
 
-RATE_LIMIT_WINDOW_MS=900000
-RATE_LIMIT_MAX_REQUESTS=100
+---
 
-API_PREFIX=/api
-```
+## Frontend Integration
 
-## Development
+`js/services/api.js` auto-detects the API URL:
+- **Dev** (Live Server on :5500) → `http://localhost:3000/api`
+- **Production** (Express serves frontend on :3000) → `/api`
 
-### Adding New Routes
-
-1. Create route file in `src/routes/`
-2. Import and use in `src/index.js`
-3. Use `asyncHandler` for error handling
-4. Use authentication middleware as needed
-
-### Adding New Middleware
-
-1. Create middleware file in `src/middleware/`
-2. Export middleware function
-3. Use in `src/index.js` or specific routes
-
-### Error Handling
-
-All errors are caught by the global error handler. Use `AppError` for custom errors:
-
-```javascript
-import { AppError } from '../middleware/errorHandler.js';
-
-throw new AppError('User not found', 404);
-```
-
-## Database
-
-PostgreSQL database with connection pooling. Database schema will be created in Phase 3.
-
-## Testing
-
-Tests will be added in Phase 15. Currently, you can test endpoints using:
-
-- Postman
-- cURL
-- Thunder Client
-- REST Client VS Code extension
-
-## Deployment
-
-Backend can be deployed to:
-- Cloud VMs (AWS EC2, DigitalOcean, Linode)
-- Container services (Docker, Kubernetes)
-- Serverless (AWS Lambda, Google Cloud Functions)
-
-See deployment guide for detailed instructions.
-
-## License
-
-MIT
+Auth, checkout, dashboard, and contact forms all try the real API first and fall back to localStorage if the server is unreachable — so the frontend works standalone during development.

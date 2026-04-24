@@ -1,113 +1,124 @@
-# Porky's Meat Market Platform
+# Porky's Meat Market — E-Commerce Platform
 
-A multi-page vanilla JavaScript web application for a meat market platform serving retail customers, B2B buyers, hawker vendors, and administrators in Windhoek, Namibia.
+A full-stack e-commerce platform for Porky's Meat Market, Windhoek, Namibia.  
+Built with vanilla HTML/CSS/JS on the frontend and Node.js + PostgreSQL on the backend.
+
+---
 
 ## Project Structure
 
 ```
-porky-meat-market/
-├── index.html                 # Home page
-├── products.html              # Product catalog
-├── product-detail.html        # Single product view
-├── cart.html                  # Shopping cart
-├── checkout.html              # Checkout flow
-├── orders.html                # Order history
-├── order-detail.html          # Order tracking
-├── dashboard.html             # Admin dashboard
-├── login.html                 # Authentication
-├── register.html              # User registration
-├── 404.html                   # Error page
-├── robots.txt                 # SEO robots file
-├── sitemap.xml                # SEO sitemap
-├── assets/
-│   ├── images/
-│   │   ├── products/          # Product images
-│   │   ├── timeline/          # Heritage timeline images
-│   │   └── icons/             # UI icons
-│   ├── fonts/                 # Custom fonts
-│   └── data/
-│       └── timeline.json      # Heritage timeline data
+/                          ← Frontend (static files)
+├── index.html             ← Home page
+├── 404.html               ← Not-found page
+├── pages/
+│   ├── login.html         ← Sign in / Register
+│   ├── products.html      ← Product catalogue
+│   ├── heritage.html      ← Company history
+│   ├── wholesale.html     ← B2B wholesale quotes
+│   ├── contact.html       ← Contact form + map
+│   ├── dashboard.html     ← Orders, tracking, account
+│   └── checkout.html      ← Multi-step checkout + payment
 ├── css/
-│   ├── variables.css          # CSS custom properties (theme)
-│   ├── base.css               # Reset, typography, base styles
-│   ├── layout.css             # Grid, flexbox layouts
-│   ├── components.css         # Component styles
-│   ├── responsive.css         # Media queries
-│   └── dark-mode.css          # Dark theme overrides
-└── js/
-    ├── main.js                # Entry point, initialization
-    ├── modules/
-    │   ├── storage.js         # LocalStorage management
-    │   ├── api.js             # API communication
-    │   ├── auth.js            # Authentication logic
-    │   ├── cart.js            # Cart management
-    │   ├── validation.js      # Form validation
-    │   ├── sanitizer.js       # Input sanitization
-    │   └── utils.js           # Utility functions
-    ├── services/
-    │   ├── productService.js  # Product API calls
-    │   ├── orderService.js    # Order API calls
-    │   ├── authService.js     # Auth API calls
-    │   └── cacheService.js    # Caching logic
-    ├── components/
-    │   ├── ProductCard.js     # Product card component
-    │   ├── Cart.js            # Cart component
-    │   ├── Checkout.js        # Checkout component
-    │   ├── OrderTracker.js    # Order tracking component
-    │   ├── Timeline.js        # Heritage timeline component
-    │   ├── Navigation.js      # Navigation component
-    │   └── Modal.js           # Modal dialog component
-    └── pages/
-        ├── home.js            # Home page logic
-        ├── catalog.js         # Catalog page logic
-        ├── checkout.js        # Checkout page logic
-        ├── orders.js          # Orders page logic
-        └── admin.js           # Admin page logic
+│   ├── design-system.css  ← CSS variables, typography, light/dark theme
+│   ├── components.css     ← Shared components (nav, cart, buttons, etc.)
+│   ├── footer.css         ← Premium footer
+│   └── pages/             ← Page-specific styles
+├── js/
+│   ├── utils/dom.js       ← DOM utility helpers
+│   ├── services/api.js    ← HTTP service layer (real API + localStorage fallback)
+│   └── modules/
+│       ├── auth.js        ← Authentication (API + localStorage fallback)
+│       ├── authGate.js    ← Inline login modal for guests
+│       ├── authPage.js    ← Login/register page logic
+│       ├── cart.js        ← Shopping cart (localStorage)
+│       ├── cartDrawer.js  ← Slide-out cart UI
+│       ├── checkout.js    ← Multi-step checkout flow
+│       ├── contact.js     ← Contact form
+│       ├── dashboard.js   ← Order history & tracking
+│       ├── heritage.js    ← Timeline animations
+│       ├── home.js        ← Home page dynamic content
+│       ├── nav.js         ← Sticky nav + mobile menu
+│       ├── products.js    ← Product catalogue + filters
+│       ├── theme.js       ← Day/night toggle
+│       └── wholesale.js   ← Wholesale quote form
+└── assets/Images/         ← Product & gallery images
+
+/backend/                  ← Node.js + Express API
+├── src/
+│   ├── server.js          ← Express app entry point
+│   ├── db/
+│   │   ├── pool.js        ← PostgreSQL connection pool
+│   │   ├── migrate.js     ← Schema migrations
+│   │   └── seed.js        ← Seed categories & products
+│   ├── middleware/
+│   │   ├── auth.js        ← JWT middleware
+│   │   └── validate.js    ← express-validator helper
+│   └── routes/
+│       ├── auth.js        ← /api/auth
+│       ├── products.js    ← /api/products
+│       ├── orders.js      ← /api/orders
+│       └── contact.js     ← /api/contact + /api/wholesale
+├── package.json
+├── .env.example
+└── README.md
 ```
 
-## Technology Stack
-
-- **Frontend**: HTML5, CSS3, Vanilla JavaScript (ES6+)
-- **Backend**: Node.js with Express/NestJS (to be implemented)
-- **Database**: PostgreSQL (to be implemented)
-- **Design**: Dark mode theme with Carbon Black, Amber, and Crimson colors
-
-## Features
-
-- Multi-page application with progressive enhancement
-- Mobile-first responsive design
-- Dark mode theme (industrial premium aesthetic)
-- Role-based access control (Retail, B2B, Hawker, Admin)
-- Shopping cart with localStorage persistence
-- Order tracking with status visualization
-- Heritage timeline with scroll animations
-- Performance optimized for 3G networks and low-end devices
+---
 
 ## Getting Started
 
-1. Clone the repository
-2. Open `index.html` in a web browser to view the frontend
-3. Set up the backend server (see backend documentation)
-4. Configure the database (see database schema in design document)
+### Frontend only (no backend)
+Open `index.html` with a local server (e.g. VS Code Live Server).  
+Auth and cart use localStorage — fully functional without a backend.
 
-## Development
+### Full stack
+```bash
+# 1. Set up the backend
+cd backend
+npm install
+cp .env.example .env        # fill in DB credentials and JWT secret
+createdb porkys_db
+npm run migrate             # create tables
+npm run seed                # insert categories + products
+npm run dev                 # start API on :3000
 
-This project uses vanilla JavaScript without frameworks. All JavaScript modules are organized by functionality:
+# 2. Open the frontend
+# Either use Live Server (port 5500) or let Express serve it:
+# NODE_ENV=production npm start
+```
 
-- **modules/**: Core utilities and services
-- **services/**: API communication layer
-- **components/**: Reusable UI components
-- **pages/**: Page-specific logic
+See `backend/README.md` for full API documentation.
 
-## Next Steps
+---
 
-- Set up Node.js backend with Express.js
-- Configure PostgreSQL database
-- Implement authentication endpoints
-- Implement product and order APIs
-- Add product images and assets
-- Configure deployment pipeline
+## Key Features
 
-## License
+| Feature | Status |
+|---------|--------|
+| Product catalogue with filters & search | ✅ |
+| Shopping cart (localStorage) | ✅ |
+| User registration & login | ✅ API + localStorage fallback |
+| Auth gate modal (guest → login) | ✅ |
+| Multi-step checkout | ✅ |
+| Payment methods (Card, EFT, Mobile, COD) | ✅ UI |
+| Order history & tracking dashboard | ✅ |
+| Day / Night theme toggle | ✅ |
+| Responsive design (mobile-first) | ✅ |
+| Premium footer with newsletter | ✅ |
+| Contact form | ✅ API + fallback |
+| Wholesale quote form | ✅ API + fallback |
+| Heritage timeline | ✅ |
+| Google Maps embed | ✅ |
+| 404 page | ✅ |
+| PostgreSQL backend | ✅ |
+| JWT authentication | ✅ |
+| Rate limiting & security headers | ✅ |
 
-Copyright © 2024 Porky's Meat Market. All rights reserved.
+---
+
+## Tech Stack
+
+**Frontend:** HTML5 · CSS3 (custom design system) · Vanilla JS (ES6+)  
+**Backend:** Node.js · Express · PostgreSQL · JWT · bcryptjs  
+**Design:** CSS Variables · Flexbox · CSS Grid · Inter + Bebas Neue fonts

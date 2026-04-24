@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Browse and order premium quality meat products from Porky's Meat Market">
+  <title>Products - Porky's Meat Market</title>
+  
+  <link rel="stylesheet" href="/css/design-system.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <link rel="stylesheet" href="/css/footer.css">
+  <link rel="stylesheet" href="/css/pages/products.css">
+</head>
+<body>
+  <!-- Navigation -->
+  <nav id="navbar" role="navigation" aria-label="Main navigation">
+    <div class="container nav-container">
+      <div class="logo">
+        <a href="/" class="logo-link">
+          <img src="/assets/Images/Porky logo.jpg" alt="Porky's Meat Market" class="logo-img">
+          <span class="logo-text">PORKY'S MEAT<br>MARKET</span>
+        </a>
+      </div>
+      <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+      <ul class="nav-menu" id="nav-menu">
+        <li><a href="/" class="nav-link">HOME</a></li>
+        <li><a href="/pages/products.html" class="nav-link active">PRODUCTS</a></li>
+        <li><a href="/pages/heritage.html" class="nav-link">HERITAGE</a></li>
+        <li><a href="/pages/wholesale.html" class="nav-link">WHOLESALE</a></li>
+        <li><a href="/pages/contact.html" class="nav-link">CONTACT</a></li>
+        <li><a href="/pages/wholesale.html" class="btn btn-quote">GET QUOTE</a></li>
+      </ul>
+      <div class="nav-right">
+        <a href="/pages/dashboard.html" class="nav-orders-btn" aria-label="My Orders">📦 Orders</a>
+        <button id="theme-toggle" class="theme-toggle-btn" aria-label="Switch to light mode" title="Light mode">
+          <span class="theme-icon">☀️</span>
+        </button>
+        <button class="cart-btn" id="cart-toggle" aria-label="Open cart">
+          🛒
+          <span class="cart-badge" data-cart-count>0</span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Products Hero -->
+  <section class="products-hero">
+    <div class="container">
+      <span class="section-label">// THE FULL CATALOG</span>
+      <h1>PREMIUM CUTS.<br>EVERY <span class="accent-amber">OCCASION.</span></h1>
+      <p>From household braai packs to bulk institutional orders — browse, filter, and find exactly what you need.</p>
+    </div>
+  </section>
+
+  <!-- Filters & Product Grid -->
+  <section class="products-catalog">
+    <div class="container">
+      <div class="products-header">
+        <div class="filters-wrapper">
+          <input 
+            type="text" 
+            id="search" 
+            placeholder="Search products..." 
+            aria-label="Search products"
+          >
+          <select id="category-filter" aria-label="Filter by category">
+            <option value="">All Categories</option>
+          </select>
+          <select id="sort" aria-label="Sort products">
+            <option value="name">Sort by Name</option>
+            <option value="price-low">Price: Low to High</option>
+            <option value="price-high">Price: High to Low</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Loading State -->
+      <div id="loading" class="flex-center" style="display: none; margin: 40px 0;">
+        <div class="spinner"></div>
+      </div>
+
+      <!-- Products Grid -->
+      <div id="product-list" class="products-grid">
+        <!-- Products loaded dynamically -->
+      </div>
+
+      <!-- No Results -->
+      <div id="no-results" class="alert alert-warning" style="display: none;">
+        <span>No products found. Try adjusting your filters.</span>
+      </div>
+
+      <!-- Pagination -->
+      <div id="pagination" class="pagination-controls">
+        <!-- Pagination buttons loaded dynamically -->
+      </div>
+    </div>
+  </section>
+
+  <!-- B2B Portal CTA -->
+  <section class="cta-strip b2b-cta">
+    <div class="container">
+      <div class="cta-strip-content">
+        <div>
+          <h2>WHOLESALE ORDERS?</h2>
+          <p>Access bulk pricing and dedicated B2B support for your business.</p>
+        </div>
+        <a href="/pages/wholesale.html" class="btn btn-lg btn-quote">B2B PORTAL</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Hawker Fast Order CTA -->
+  <section class="cta-strip hawker-cta">
+    <div class="container">
+      <div class="cta-strip-content">
+        <div>
+          <h2>QUICK ORDER FOR HAWKERS</h2>
+          <p>Fast-track your daily orders with our streamlined hawker system.</p>
+        </div>
+        <a href="/pages/wholesale.html" class="btn btn-lg btn-secondary">QUICK ORDER</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Cart Drawer -->
+  <div class="cart-overlay" id="cart-overlay" aria-hidden="true"></div>
+  <aside class="cart-drawer" id="cart-drawer" aria-label="Shopping cart">
+    <div class="cart-drawer-header">
+      <h3>YOUR CART</h3>
+      <button class="cart-close-btn" id="cart-close" aria-label="Close cart">✕</button>
+    </div>
+    <div class="cart-items-list" id="cart-items-list">
+      <div class="cart-empty" id="cart-empty">
+        <span class="cart-empty-icon">🛒</span>
+        <p>Your cart is empty</p>
+        <a href="/pages/products.html" class="btn btn-secondary btn-sm">Browse Products</a>
+      </div>
+    </div>
+    <div class="cart-drawer-footer" id="cart-footer" style="display:none;">
+      <div class="cart-totals">
+        <div class="cart-total-row"><span>Subtotal</span><span id="cart-subtotal">N$0.00</span></div>
+        <div class="cart-total-row"><span>VAT (15%)</span><span id="cart-tax">N$0.00</span></div>
+        <div class="cart-total-row grand-total"><span>Total</span><span id="cart-total">N$0.00</span></div>
+      </div>
+      <div class="cart-actions">
+        <a href="/pages/checkout.html" class="btn btn-quote btn-lg">CHECKOUT →</a>
+        <button id="cart-clear" class="btn btn-secondary">Clear Cart</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Footer -->
+  <footer id="footer" role="contentinfo">
+
+    <!-- Newsletter CTA band -->
+    <div class="footer-cta-band">
+      <div class="footer-cta-inner">
+        <div class="footer-cta-text">
+          <h3>Stay in the loop</h3>
+          <p>Weekly specials, new products and wholesale deals — straight to your inbox.</p>
+        </div>
+        <form class="footer-cta-form" onsubmit="event.preventDefault(); this.querySelector('input').value=''; this.querySelector('button').textContent='Subscribed ✓';">
+          <input type="email" placeholder="your@email.com" aria-label="Email for newsletter" required>
+          <button type="submit" class="btn btn-quote btn-sm">Subscribe</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Main grid -->
+    <div class="footer-content">
+
+      <!-- Brand column -->
+      <div class="footer-section footer-brand">
+        <a href="/" class="footer-logo">
+          <img src="/assets/Images/Porky logo.jpg" alt="Porky's Meat Market" class="footer-logo-img" loading="lazy">
+          <div class="footer-logo-text">
+            <span class="footer-logo-name">Porky's Meat Market</span>
+            <span class="footer-logo-tagline">Est. 1990 · Windhoek</span>
+          </div>
+        </a>
+        <p class="footer-brand-desc">Freshness starts here. Your community butcher — from braaivleis to boerewors. Family-built in Lafrenz, supplying households, hawkers, hospitals and the nation since 1990.</p>
+        <div class="footer-badges">
+          <span class="footer-badge"><span class="footer-badge-icon">🛡️</span> HACCP Compliant</span>
+          <span class="footer-badge"><span class="footer-badge-icon">❄️</span> Cold-Chain</span>
+          <span class="footer-badge"><span class="footer-badge-icon">🇳🇦</span> Proudly Namibian</span>
+        </div>
+        <div class="footer-social">
+          <a href="https://www.facebook.com/p/Porkys-Meat-Market-100063904486929/" target="_blank" rel="noopener noreferrer" aria-label="Facebook" title="Facebook">f</a>
+          <a href="mailto:porkys-admin@porkysmm.com" aria-label="Email" title="Email us">@</a>
+          <a href="https://wa.me/264612621750" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp" title="WhatsApp">w</a>
+        </div>
+      </div>
+
+      <!-- Explore column -->
+      <div class="footer-section">
+        <h4>Explore</h4>
+        <ul>
+          <li><a href="/">Home</a></li>
+          <li><a href="/pages/products.html">Products</a></li>
+          <li><a href="/pages/heritage.html">Our Heritage</a></li>
+          <li><a href="/pages/wholesale.html">Wholesale</a></li>
+          <li><a href="/pages/contact.html">Contact</a></li>
+          <li><a href="/pages/dashboard.html">My Orders</a></li>
+          <li><a href="/pages/dashboard.html#tracking">Track Order</a></li>
+          <li><a href="/pages/login.html">Sign In</a></li>
+        </ul>
+      </div>
+
+      <!-- Contact column -->
+      <div class="footer-section">
+        <h4>Contact</h4>
+        <div class="footer-contact-item">
+          <span class="footer-contact-label">Address</span>
+          <span class="footer-contact-value">41B Rendsburger Street<br>Lafrenz Industrial, Windhoek</span>
+        </div>
+        <div class="footer-contact-item">
+          <span class="footer-contact-label">Phone</span>
+          <span class="footer-contact-value">
+            <a href="tel:+264612621750">+264 61 262 175</a><br>
+            <a href="tel:+264612625290">061 262 529</a>
+          </span>
+        </div>
+        <div class="footer-contact-item">
+          <span class="footer-contact-label">Email</span>
+          <span class="footer-contact-value"><a href="mailto:porkys-admin@porkysmm.com">porkys-admin@porkysmm.com</a></span>
+        </div>
+        <div class="footer-contact-item">
+          <span class="footer-contact-label">Hours</span>
+          <span class="footer-contact-value">Mon–Fri 7:00–17:00<br>Sat 8:00–12:00</span>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="footer-divider"></div>
+
+    <!-- Bottom bar -->
+    <div class="footer-bottom">
+      <div class="footer-bottom-left">
+        <p>&copy; 2026 Porky's Meat Market. All rights reserved.</p>
+        <p class="footer-tagline">35 Years · Meating the Need</p>
+      </div>
+      <div class="footer-bottom-links">
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Use</a>
+        <a href="/pages/contact.html">Support</a>
+      </div>
+    </div>
+
+  </footer>
+
+  <!-- Scripts -->
+  <script src="/js/utils/dom.js" defer></script>
+  <script src="/js/services/api.js" defer></script>
+  <script src="/js/modules/theme.js" defer></script>
+  <script src="/js/modules/auth.js" defer></script>
+  <script src="/js/modules/authGate.js" defer></script>
+  <script src="/js/modules/cart.js" defer></script>
+  <script src="/js/modules/cartDrawer.js" defer></script>
+  <script src="/js/modules/nav.js" defer></script>
+  <script src="/js/modules/products.js" defer></script>
+</body>
+</html>

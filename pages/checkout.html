@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Secure checkout — Porky's Meat Market">
+  <title>Checkout — Porky's Meat Market</title>
+
+  <link rel="stylesheet" href="/css/design-system.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <link rel="stylesheet" href="/css/footer.css">
+  <link rel="stylesheet" href="/css/pages/checkout.css">
+</head>
+<body>
+
+  <!-- Navigation -->
+  <nav id="navbar" role="navigation" aria-label="Main navigation">
+    <div class="container nav-container">
+      <div class="logo">
+        <a href="/" class="logo-link">
+          <img src="/assets/Images/Porky logo.jpg" alt="Porky's Meat Market" class="logo-img">
+          <span class="logo-text">PORKY'S MEAT<br>MARKET</span>
+        </a>
+      </div>
+      <div class="checkout-steps-nav">
+        <span class="checkout-step active" data-step="1">1. Delivery</span>
+        <span class="checkout-step-sep">›</span>
+        <span class="checkout-step" data-step="2">2. Payment</span>
+        <span class="checkout-step-sep">›</span>
+        <span class="checkout-step" data-step="3">3. Confirm</span>
+      </div>
+      <div class="nav-right">
+        <a href="/pages/products.html" class="btn btn-secondary btn-sm">← Back to Shop</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Checkout Main -->
+  <main class="checkout-main">
+    <div class="container">
+      <div class="checkout-layout">
+
+        <!-- Left: Steps -->
+        <div class="checkout-steps-panel">
+
+          <!-- STEP 1: Delivery -->
+          <section class="checkout-step-section active" id="step-1">
+            <div class="step-header">
+              <div class="step-num">1</div>
+              <h2>Delivery Details</h2>
+            </div>
+
+            <form id="delivery-form" class="checkout-form" novalidate>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="d-firstname">First name *</label>
+                  <input type="text" id="d-firstname" name="firstname" autocomplete="given-name" required>
+                </div>
+                <div class="form-group">
+                  <label for="d-lastname">Last name *</label>
+                  <input type="text" id="d-lastname" name="lastname" autocomplete="family-name" required>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="d-email">Email address *</label>
+                <input type="email" id="d-email" name="email" autocomplete="email" required>
+              </div>
+              <div class="form-group">
+                <label for="d-phone">Phone number *</label>
+                <input type="tel" id="d-phone" name="phone" autocomplete="tel" placeholder="+264 61 000 000" required>
+              </div>
+
+              <div class="delivery-type-toggle">
+                <button type="button" class="delivery-type-btn active" data-type="delivery" onclick="Checkout.setDeliveryType('delivery', this)">🚚 Delivery</button>
+                <button type="button" class="delivery-type-btn" data-type="pickup" onclick="Checkout.setDeliveryType('pickup', this)">🏪 Collect In-Store</button>
+              </div>
+
+              <div id="delivery-address-fields">
+                <div class="form-group">
+                  <label for="d-address">Street address *</label>
+                  <input type="text" id="d-address" name="address" autocomplete="street-address" required>
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="d-suburb">Suburb</label>
+                    <input type="text" id="d-suburb" name="suburb" autocomplete="address-level2">
+                  </div>
+                  <div class="form-group">
+                    <label for="d-city">City *</label>
+                    <input type="text" id="d-city" name="city" value="Windhoek" autocomplete="address-level1" required>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="d-notes">Delivery notes</label>
+                  <textarea id="d-notes" name="notes" rows="2" placeholder="Gate code, landmark, special instructions…"></textarea>
+                </div>
+              </div>
+
+              <div id="pickup-info" style="display:none;" class="pickup-info-box">
+                <p>📍 <strong>41B Rendsburger Street, Lafrenz Industrial, Windhoek</strong></p>
+                <p>Mon–Fri 7:00–17:00 · Sat 8:00–12:00</p>
+                <p>Your order will be ready within 2 hours of confirmation.</p>
+              </div>
+
+              <button type="submit" class="btn btn-quote btn-lg step-next-btn">Continue to Payment →</button>
+            </form>
+          </section>
+
+          <!-- STEP 2: Payment -->
+          <section class="checkout-step-section" id="step-2">
+            <div class="step-header">
+              <div class="step-num">2</div>
+              <h2>Payment</h2>
+            </div>
+
+            <div class="payment-methods">
+              <button class="payment-method-btn active" data-method="card" onclick="Checkout.setPaymentMethod('card', this)">
+                <span class="pm-icon">💳</span>
+                <span class="pm-label">Card</span>
+              </button>
+              <button class="payment-method-btn" data-method="eft" onclick="Checkout.setPaymentMethod('eft', this)">
+                <span class="pm-icon">🏦</span>
+                <span class="pm-label">EFT / Bank Transfer</span>
+              </button>
+              <button class="payment-method-btn" data-method="mobile" onclick="Checkout.setPaymentMethod('mobile', this)">
+                <span class="pm-icon">📱</span>
+                <span class="pm-label">Mobile Pay</span>
+              </button>
+              <button class="payment-method-btn" data-method="cod" onclick="Checkout.setPaymentMethod('cod', this)">
+                <span class="pm-icon">💵</span>
+                <span class="pm-label">Cash on Delivery</span>
+              </button>
+            </div>
+
+            <!-- Card payment -->
+            <div id="payment-card" class="payment-panel active">
+              <div class="card-preview" id="card-preview">
+                <div class="card-preview-chip"></div>
+                <div class="card-preview-number" id="preview-number">•••• •••• •••• ••••</div>
+                <div class="card-preview-bottom">
+                  <div>
+                    <div class="card-preview-label">Card Holder</div>
+                    <div class="card-preview-value" id="preview-name">YOUR NAME</div>
+                  </div>
+                  <div>
+                    <div class="card-preview-label">Expires</div>
+                    <div class="card-preview-value" id="preview-expiry">MM/YY</div>
+                  </div>
+                  <div class="card-preview-brand" id="preview-brand">VISA</div>
+                </div>
+              </div>
+
+              <form id="card-form" class="checkout-form" novalidate>
+                <div class="form-group">
+                  <label for="card-number">Card number *</label>
+                  <div class="card-input-wrap">
+                    <input type="text" id="card-number" name="card_number" placeholder="1234 5678 9012 3456" maxlength="19" autocomplete="cc-number" inputmode="numeric" required>
+                    <span class="card-brand-badge" id="card-brand-badge">💳</span>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="card-name">Name on card *</label>
+                  <input type="text" id="card-name" name="card_name" placeholder="JOHN SMITH" autocomplete="cc-name" required>
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="card-expiry">Expiry date *</label>
+                    <input type="text" id="card-expiry" name="card_expiry" placeholder="MM/YY" maxlength="5" autocomplete="cc-exp" inputmode="numeric" required>
+                  </div>
+                  <div class="form-group">
+                    <label for="card-cvv">CVV *</label>
+                    <div class="card-input-wrap">
+                      <input type="password" id="card-cvv" name="card_cvv" placeholder="•••" maxlength="4" autocomplete="cc-csc" inputmode="numeric" required>
+                      <span class="cvv-hint" title="3 digits on back of card (4 for Amex)">?</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="secure-badge">
+                  <span>🔒</span>
+                  <span>256-bit SSL encrypted · Your card details are never stored</span>
+                </div>
+              </form>
+            </div>
+
+            <!-- EFT payment -->
+            <div id="payment-eft" class="payment-panel" style="display:none;">
+              <div class="eft-details">
+                <h3>Bank Transfer Details</h3>
+                <div class="eft-row"><span>Bank</span><strong>First National Bank (FNB)</strong></div>
+                <div class="eft-row"><span>Account Name</span><strong>Porky's Meat Market</strong></div>
+                <div class="eft-row"><span>Account Number</span><strong>62 000 000 000</strong></div>
+                <div class="eft-row"><span>Branch Code</span><strong>280 172</strong></div>
+                <div class="eft-row"><span>Reference</span><strong id="eft-reference">PMM-XXXXXX</strong></div>
+                <p class="eft-note">⚠️ Use your order reference as the payment reference. Orders are processed once payment reflects (1–2 business days).</p>
+              </div>
+            </div>
+
+            <!-- Mobile Pay -->
+            <div id="payment-mobile" class="payment-panel" style="display:none;">
+              <div class="mobile-pay-options">
+                <div class="mobile-pay-option">
+                  <div class="mobile-pay-logo">📱</div>
+                  <div>
+                    <strong>MTC Mobile Money</strong>
+                    <p>Send to: <strong>+264 61 262 175</strong></p>
+                    <p>Reference: <span id="mobile-reference">PMM-XXXXXX</span></p>
+                  </div>
+                </div>
+                <div class="mobile-pay-option">
+                  <div class="mobile-pay-logo">💚</div>
+                  <div>
+                    <strong>WhatsApp Pay</strong>
+                    <p>Send payment via WhatsApp to <strong>+264 61 262 175</strong></p>
+                    <p>Include your order reference in the message.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Cash on Delivery -->
+            <div id="payment-cod" class="payment-panel" style="display:none;">
+              <div class="cod-info">
+                <div class="cod-icon">💵</div>
+                <h3>Pay on Delivery</h3>
+                <p>Pay in cash when your order arrives. Please have the exact amount ready.</p>
+                <p>Cash on delivery is available for orders within Windhoek only.</p>
+              </div>
+            </div>
+
+            <div class="step-nav-btns">
+              <button type="button" class="btn btn-secondary" onclick="Checkout.goToStep(1)">← Back</button>
+              <button type="button" class="btn btn-quote btn-lg" onclick="Checkout.submitPayment()">Review Order →</button>
+            </div>
+          </section>
+
+          <!-- STEP 3: Confirm -->
+          <section class="checkout-step-section" id="step-3">
+            <div class="step-header">
+              <div class="step-num">3</div>
+              <h2>Review &amp; Confirm</h2>
+            </div>
+
+            <div id="order-review" class="order-review">
+              <!-- Populated by JS -->
+            </div>
+
+            <div class="confirm-terms">
+              <label class="check-label">
+                <input type="checkbox" id="confirm-terms" required>
+                <span>I confirm my order details are correct and agree to the <a href="#" onclick="return false;">Terms &amp; Conditions</a>.</span>
+              </label>
+            </div>
+
+            <div id="checkout-alert" class="checkout-alert-box error" style="display:none;"></div>
+
+            <div class="step-nav-btns">
+              <button type="button" class="btn btn-secondary" onclick="Checkout.goToStep(2)">← Back</button>
+              <button type="button" class="btn btn-quote btn-lg" id="place-order-btn" onclick="Checkout.placeOrder()">
+                <span class="btn-text">PLACE ORDER</span>
+                <span class="btn-spinner" style="display:none;"></span>
+              </button>
+            </div>
+          </section>
+
+          <!-- STEP 4: Success -->
+          <section class="checkout-step-section" id="step-success" style="display:none;">
+            <div class="order-success">
+              <div class="success-icon">🎉</div>
+              <h2>Order Placed!</h2>
+              <p id="success-message">Your order has been received.</p>
+
+              <div class="success-details-grid">
+                <div class="success-detail-item">
+                  <span class="success-detail-label">Order Reference</span>
+                  <span class="success-detail-value amber" id="success-order-id">—</span>
+                </div>
+                <div class="success-detail-item">
+                  <span class="success-detail-label">Amount Charged</span>
+                  <span class="success-detail-value" id="success-total">—</span>
+                </div>
+                <div class="success-detail-item">
+                  <span class="success-detail-label">Payment Method</span>
+                  <span class="success-detail-value" id="success-payment-method">—</span>
+                </div>
+              </div>
+
+              <div class="success-actions">
+                <a href="/pages/dashboard.html" class="btn btn-quote btn-lg">📦 View My Orders</a>
+                <a href="/pages/dashboard.html#tracking" class="btn btn-secondary btn-lg">🚚 Track Order</a>
+                <a href="/pages/products.html" class="btn btn-secondary">Continue Shopping</a>
+              </div>
+            </div>
+          </section>
+
+          <!-- STEP 5: Payment Declined -->
+          <section class="checkout-step-section" id="step-declined" style="display:none;">
+            <div class="order-declined">
+              <div class="declined-icon">❌</div>
+              <h2>Payment Declined</h2>
+              <p>Your card was declined. This can happen due to insufficient funds, incorrect details, or your bank blocking the transaction.</p>
+              <div class="declined-tips">
+                <h4>What to do:</h4>
+                <ul>
+                  <li>Check your card number, expiry date and CVV</li>
+                  <li>Ensure you have sufficient funds</li>
+                  <li>Try a different payment method</li>
+                  <li>Contact your bank if the problem persists</li>
+                </ul>
+              </div>
+              <div class="success-actions">
+                <button onclick="Checkout.goToStep(2)" class="btn btn-quote btn-lg">Try Again</button>
+                <button onclick="Checkout.setPaymentMethod('cod', document.querySelector('[data-method=cod]')); Checkout.goToStep(2);" class="btn btn-secondary btn-lg">Pay on Delivery Instead</button>
+              </div>
+            </div>
+          </section>
+
+        </div>
+
+        <!-- Right: Order Summary -->
+        <aside class="checkout-summary">
+          <div class="summary-card">
+            <h3 class="summary-title">Order Summary</h3>
+            <div id="summary-items" class="summary-items">
+              <!-- Populated by JS -->
+            </div>
+            <div class="summary-totals">
+              <div class="summary-row"><span>Subtotal</span><span id="summary-subtotal">N$0.00</span></div>
+              <div class="summary-row"><span>VAT (15%)</span><span id="summary-tax">N$0.00</span></div>
+              <div class="summary-row delivery-row"><span>Delivery</span><span id="summary-delivery">N$0.00</span></div>
+              <div class="summary-row total-row"><span>Total</span><span id="summary-total">N$0.00</span></div>
+            </div>
+            <div class="summary-secure">
+              <span>🔒 Secure checkout</span>
+              <span>🇳🇦 Proudly Namibian</span>
+            </div>
+          </div>
+        </aside>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- Scripts -->
+  <script src="/js/utils/dom.js" defer></script>
+  <script src="/js/services/api.js" defer></script>
+  <script src="/js/modules/theme.js" defer></script>
+  <script src="/js/modules/auth.js" defer></script>
+  <script src="/js/modules/cart.js" defer></script>
+  <script src="/js/modules/nav.js" defer></script>
+  <script src="/js/modules/checkout.js" defer></script>
+</body>
+</html>

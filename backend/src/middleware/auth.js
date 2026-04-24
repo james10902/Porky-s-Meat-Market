@@ -1,92 +1,63 @@
-import jwt from 'jsonwebtoken';
-import { AppError } from './errorHandler.js';
+/**
+ * JWT authentication middleware
+ */
+const jwt = require('jsonwebtoken');
+
+const JWT_SECRET = process.env.JWT_SECRET || 'change_me_in_production';
 
 /**
- * Authentication Middleware
- * Verifies JWT token and attaches user info to request
+ * Verify JWT and attach user to req.user
  */
+const authenticate = (req, res, next) => {
+  const header = req.headers.authorization || '';
+  const token  = header.startsWith('Bearer ') ? header.slice(7) : null;
 
-export const authenticate = (req, res, next) => {
+  if (!token) {
+    return res.status(401).json({ error: 'Authentication required.' });
+  }
+
   try {
-    // Get token from Authorization header or cookies
-    const authHeader = req.headers.authorization;
-    const token = authHeader?.startsWith('Bearer ') 
-      ? authHeader.slice(7) 
-      : req.cookies?.token;
-    
-    if (!token) {
-      throw new AppError('No authentication token provided', 401);
-    }
-    
-    // Verify token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded;
-    
+    const payload = jwt.verify(token, JWT_SECRET);
+    req.user = payload;
     next();
-  } catch (error) {
-    if (error instanceof jwt.TokenExpiredError) {
-      return res.status(401).json({
-        error: 'Token expired',
-        message: 'Your session has expired. Please log in again.'
-      });
-    }
-    
-    if (error instanceof jwt.JsonWebTokenError) {
-      return res.status(401).json({
-        error: 'Invalid token',
-        message: 'Invalid authentication token'
-      });
-    }
-    
-    res.status(401).json({
-      error: 'Unauthorized',
-      message: error.message || 'Authentication failed'
-    });
+  } catch (err) {
+    return res.status(401).json({ error: 'Invalid or expired token.' });
   }
 };
 
 /**
- * Authorization Middleware
- * Checks if user has required role
+ * Require admin role
  */
-export const authorize = (...allowedRoles) => {
-  return (req, res, next) => {
-    if (!req.user) {
-      return res.status(401).json({
-        error: 'Unauthorized',
-        message: 'User not authenticated'
-      });
-    }
-    
-    if (!allowedRoles.includes(req.user.role)) {
-      return res.status(403).json({
-        error: 'Forbidden',
-        message: 'You do not have permission to access this resource'
-      });
-    }
-    
-    next();
-  };
-};
-
-/**
- * Optional authentication middleware
- * Attaches user info if token is present, but doesn't require it
- */
-export const optionalAuth = (req, res, next) => {
-  try {
-    const authHeader = req.headers.authorization;
-    const token = authHeader?.startsWith('Bearer ') 
-      ? authHeader.slice(7) 
-      : req.cookies?.token;
-    
-    if (token) {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      req.user = decoded;
-    }
-  } catch (error) {
-    // Silently ignore auth errors for optional auth
+const requireAdmin = (req, res, next) => {
+  if (!req.user || req.user.role !== 'admin') {
+    return res.status(403).json({ error: 'Admin access required.' });
   }
-  
   next();
 };
+
+/**
+ * Optional auth — attaches user if token present, continues either way
+ */
+const optionalAuth = (req, res, next) => {
+  const header = req.headers.authorization || '';
+  const token  = header.startsWith('Bearer ') ? header.slice(7) : null;
+  if (token) {
+    try {
+      req.user = jwt.verify(token, JWT_SECRET);
+    } catch (_) {}
+  }
+  next();
+};
+
+/**
+ * Sign a JWT for a user
+ */
+const signToken = (user) => {
+  return jwt.sign(
+    { id: user.id, email: user.email, role: user.role },
+    JWT_SECRET,
+    { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
+  );
+};
+
+module.exports = { authenticate, requireAdmin, optionalAuth, signToken };
