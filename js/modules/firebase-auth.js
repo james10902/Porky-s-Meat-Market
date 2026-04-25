@@ -138,18 +138,23 @@ const FirebaseAuth = {
   },
 
   /* ── Friendly error messages ── */
-  _msg: (code) => ({
-    'auth/user-not-found':         'No account found with this email.',
-    'auth/wrong-password':         'Incorrect password. Please try again.',
-    'auth/invalid-credential':     'Incorrect email or password.',
-    'auth/invalid-email':          'Please enter a valid email address.',
-    'auth/email-already-in-use':   'An account with this email already exists.',
-    'auth/weak-password':          'Password must be at least 6 characters.',
-    'auth/too-many-requests':      'Too many attempts. Please wait and try again.',
-    'auth/network-request-failed': 'Network error. Check your connection.',
-    'auth/user-disabled':          'This account has been disabled.',
-    'auth/popup-blocked':          'Popup was blocked. Please allow popups for this site.'
-  })[code] || 'Something went wrong. Please try again.'
+  _msg: (code) => {
+    const map = {
+      'auth/user-not-found':         'No account found with this email.',
+      'auth/wrong-password':         'Incorrect password. Please try again.',
+      'auth/invalid-credential':     'Incorrect email or password.',
+      'auth/invalid-email':          'Please enter a valid email address.',
+      'auth/email-already-in-use':   'An account with this email already exists.',
+      'auth/weak-password':          'Password must be at least 6 characters.',
+      'auth/too-many-requests':      'Too many attempts. Please wait and try again.',
+      'auth/network-request-failed': 'Network error. Check your connection.',
+      'auth/user-disabled':          'This account has been disabled.',
+      'auth/popup-blocked':          'Popup was blocked. Please allow popups for this site.',
+      'auth/unauthorized-domain':    'This domain is not authorised for Google sign-in. Add it in Firebase Console → Authentication → Authorised domains.',
+      'auth/operation-not-allowed':  'Google sign-in is not enabled. Enable it in Firebase Console → Authentication → Sign-in method.',
+    };
+    return map[code] || ('Sign-in error: ' + (code || 'unknown'));
+  }
 };
 
 // Initialise immediately — by the time this script runs, Firebase SDK

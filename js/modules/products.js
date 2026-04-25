@@ -397,10 +397,6 @@ const Products = {
   },
 
   addToCart: function(productId) {
-    if (typeof Auth !== 'undefined' && !Auth.isAuthenticated()) {
-      if (typeof AuthGate !== 'undefined') AuthGate.show();
-      return;
-    }
     var product = Products.allProducts.find(function(p) { return p.id === productId; });
     if (product) {
       Cart.addItem(product, 1);

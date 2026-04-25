@@ -33,11 +33,6 @@ const CartDrawer = {
   },
 
   open: () => {
-    // Require login to view cart
-    if (typeof Auth !== 'undefined' && !Auth.isAuthenticated()) {
-      AuthGate.show(window.location.pathname + window.location.search);
-      return;
-    }
     const drawer  = DOM.byId('cart-drawer');
     const overlay = DOM.byId('cart-overlay');
     DOM.addClass(drawer,  'open');
@@ -53,6 +48,16 @@ const CartDrawer = {
     DOM.removeClass(overlay, 'open');
     DOM.setAttr(overlay, 'aria-hidden', 'true');
     document.body.style.overflow = '';
+  },
+
+  /* Checkout — require login here, not at add-to-cart */
+  _handleCheckout: () => {
+    if (typeof Auth !== 'undefined' && !Auth.isAuthenticated()) {
+      CartDrawer.close();
+      window.location.href = '/pages/login.html?return=' + encodeURIComponent('/pages/checkout.html');
+      return;
+    }
+    window.location.href = '/pages/checkout.html';
   },
 
   render: () => {

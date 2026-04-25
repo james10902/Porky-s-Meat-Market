@@ -52,6 +52,12 @@ const Wholesale = {
         // API down — simulate success
         console.warn('Wholesale API unavailable, simulating:', apiErr.message);
         await new Promise(resolve => setTimeout(resolve, 600));
+        // Save to localStorage so admin can see it
+        try {
+          const quotes = JSON.parse(localStorage.getItem('porky_wholesale_quotes') || '[]');
+          quotes.unshift({ id: Date.now(), ...data, status: 'NEW', created_at: new Date().toISOString() });
+          localStorage.setItem('porky_wholesale_quotes', JSON.stringify(quotes));
+        } catch (e) {}
         Wholesale.showMessage(
           'Thank you, ' + data.contact_person + '! Your quote request has been received. Our wholesale team will contact you within 24 hours.',
           'success'

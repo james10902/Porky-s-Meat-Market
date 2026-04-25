@@ -75,7 +75,7 @@ const AuthPage = {
 
     try {
       if (typeof FirebaseAuth === 'undefined' || !FirebaseAuth.isAvailable()) {
-        AuthPage._showAlert('Google sign-in is not available right now. Please use email instead.', 'error');
+        AuthPage._showAlert('Google sign-in is not available. Please use email/password instead.', 'error');
         return;
       }
 
@@ -87,11 +87,22 @@ const AuthPage = {
         AuthPage._showAlert('Welcome, ' + result.user.firstname + '! Redirecting…', 'success');
         setTimeout(AuthPage._redirect, 700);
       } else {
-        AuthPage._showAlert(result.error || 'Google sign-in failed. Please try again.', 'error');
+        // Show the actual Firebase error, not a generic message
+        AuthPage._showAlert(result.error || 'Google sign-in failed. Please try email instead.', 'error');
       }
     } catch (err) {
       console.error('[AuthPage] Google sign-in error:', err);
-      AuthPage._showAlert('Google sign-in failed. Please use email login.', 'error');
+      // Show the real error message so it's debuggable
+      const msg = err?.message || String(err);
+      if (msg.includes('popup-blocked') || msg.includes('popup_blocked')) {
+        AuthPage._showAlert('Popup was blocked. Please allow popups for this site and try again.', 'error');
+      } else if (msg.includes('network') || msg.includes('Network')) {
+        AuthPage._showAlert('Network error. Check your connection and try again.', 'error');
+      } else if (msg.includes('auth/unauthorized-domain')) {
+        AuthPage._showAlert('This domain is not authorised for Google sign-in. Please use email/password.', 'error');
+      } else {
+        AuthPage._showAlert('Google sign-in failed: ' + msg, 'error');
+      }
     } finally {
       document.querySelectorAll('.btn-google').forEach(b => { b.disabled = false; });
     }

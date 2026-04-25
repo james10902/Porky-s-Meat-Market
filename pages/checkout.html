@@ -10,6 +10,8 @@
   <link rel="stylesheet" href="/css/components.css">
   <link rel="stylesheet" href="/css/footer.css">
   <link rel="stylesheet" href="/css/pages/checkout.css">
+  <!-- Stripe.js — must load before checkout.js -->
+  <script src="https://js.stripe.com/v3/"></script>
 </head>
 <body>
 
@@ -113,118 +115,15 @@
               <h2>Payment</h2>
             </div>
 
-            <div class="payment-methods">
-              <button class="payment-method-btn active" data-method="card" onclick="Checkout.setPaymentMethod('card', this)">
-                <span class="pm-icon">💳</span>
-                <span class="pm-label">Card</span>
-              </button>
-              <button class="payment-method-btn" data-method="eft" onclick="Checkout.setPaymentMethod('eft', this)">
-                <span class="pm-icon">🏦</span>
-                <span class="pm-label">EFT / Bank Transfer</span>
-              </button>
-              <button class="payment-method-btn" data-method="mobile" onclick="Checkout.setPaymentMethod('mobile', this)">
-                <span class="pm-icon">📱</span>
-                <span class="pm-label">Mobile Pay</span>
-              </button>
-              <button class="payment-method-btn" data-method="cod" onclick="Checkout.setPaymentMethod('cod', this)">
-                <span class="pm-icon">💵</span>
-                <span class="pm-label">Cash on Delivery</span>
-              </button>
-            </div>
-
-            <!-- Card payment -->
-            <div id="payment-card" class="payment-panel active">
-              <div class="card-preview" id="card-preview">
-                <div class="card-preview-chip"></div>
-                <div class="card-preview-number" id="preview-number">•••• •••• •••• ••••</div>
-                <div class="card-preview-bottom">
-                  <div>
-                    <div class="card-preview-label">Card Holder</div>
-                    <div class="card-preview-value" id="preview-name">YOUR NAME</div>
-                  </div>
-                  <div>
-                    <div class="card-preview-label">Expires</div>
-                    <div class="card-preview-value" id="preview-expiry">MM/YY</div>
-                  </div>
-                  <div class="card-preview-brand" id="preview-brand">VISA</div>
-                </div>
+            <!-- Card payment — Stripe Elements -->
+            <div class="stripe-card-wrap">
+              <div class="stripe-card-header">
+                <span class="stripe-lock">🔒</span>
+                <span>Secure card payment powered by</span>
+                <svg height="18" viewBox="0 0 60 25" xmlns="http://www.w3.org/2000/svg" style="margin-left:6px;vertical-align:middle;flex-shrink:0;"><path d="M59.64 14.28h-8.06c.19 1.93 1.6 2.55 3.2 2.55 1.64 0 2.96-.37 4.05-.95v3.32a10.7 10.7 0 0 1-4.56.95c-4.01 0-6.83-2.5-6.83-7.48 0-4.19 2.39-7.52 6.3-7.52 3.92 0 5.96 3.28 5.96 7.4 0 .4-.04 1.26-.06 1.73zm-5.9-5.2c-1.08 0-2.27.86-2.27 2.91h4.48c0-2.05-1.15-2.91-2.21-2.91zM40.73 5.13c-1.47 0-2.41.69-2.94 1.16l-.19-1.04h-3.31v19.2l3.76-.8.01-4.65c.55.4 1.35.97 2.68.97 2.7 0 5.17-2.17 5.17-6.96-.01-4.39-2.5-5.88-5.18-5.88zm-.91 9.05c-.9 0-1.43-.32-1.79-.71l-.01-5.62c.39-.44.94-.74 1.8-.74 1.38 0 2.33 1.55 2.33 3.53 0 2.02-.94 3.54-2.33 3.54zM28.24 5.13c-1.47 0-2.41.69-2.94 1.16l-.19-1.04h-3.31v19.2l3.76-.8.01-4.65c.55.4 1.35.97 2.68.97 2.7 0 5.17-2.17 5.17-6.96-.01-4.39-2.5-5.88-5.18-5.88zm-.91 9.05c-.9 0-1.43-.32-1.79-.71l-.01-5.62c.39-.44.94-.74 1.8-.74 1.38 0 2.33 1.55 2.33 3.53 0 2.02-.94 3.54-2.33 3.54zM14.15 5.25l-3.78.8V.1l3.78-.8v5.95zM10.37 5.25H14.15V20.1H10.37V5.25zM5.19 6.4l-.24-1.15H1.82V20.1h3.76V10.3c.89-1.16 2.4-.95 2.87-.8V5.25c-.49-.18-2.26-.52-3.26 1.15z" fill="#6772E5"/></svg>
               </div>
-
-              <form id="card-form" class="checkout-form" novalidate>
-                <div class="form-group">
-                  <label for="card-number">Card number *</label>
-                  <div class="card-input-wrap">
-                    <input type="text" id="card-number" name="card_number" placeholder="1234 5678 9012 3456" maxlength="19" autocomplete="cc-number" inputmode="numeric" required>
-                    <span class="card-brand-badge" id="card-brand-badge">💳</span>
-                  </div>
-                </div>
-                <div class="form-group">
-                  <label for="card-name">Name on card *</label>
-                  <input type="text" id="card-name" name="card_name" placeholder="JOHN SMITH" autocomplete="cc-name" required>
-                </div>
-                <div class="form-row">
-                  <div class="form-group">
-                    <label for="card-expiry">Expiry date *</label>
-                    <input type="text" id="card-expiry" name="card_expiry" placeholder="MM/YY" maxlength="5" autocomplete="cc-exp" inputmode="numeric" required>
-                  </div>
-                  <div class="form-group">
-                    <label for="card-cvv">CVV *</label>
-                    <div class="card-input-wrap">
-                      <input type="password" id="card-cvv" name="card_cvv" placeholder="•••" maxlength="4" autocomplete="cc-csc" inputmode="numeric" required>
-                      <span class="cvv-hint" title="3 digits on back of card (4 for Amex)">?</span>
-                    </div>
-                  </div>
-                </div>
-                <div class="secure-badge">
-                  <span>🔒</span>
-                  <span>256-bit SSL encrypted · Your card details are never stored</span>
-                </div>
-              </form>
-            </div>
-
-            <!-- EFT payment -->
-            <div id="payment-eft" class="payment-panel" style="display:none;">
-              <div class="eft-details">
-                <h3>Bank Transfer Details</h3>
-                <div class="eft-row"><span>Bank</span><strong>First National Bank (FNB)</strong></div>
-                <div class="eft-row"><span>Account Name</span><strong>Porky's Meat Market</strong></div>
-                <div class="eft-row"><span>Account Number</span><strong>62 000 000 000</strong></div>
-                <div class="eft-row"><span>Branch Code</span><strong>280 172</strong></div>
-                <div class="eft-row"><span>Reference</span><strong id="eft-reference">PMM-XXXXXX</strong></div>
-                <p class="eft-note">⚠️ Use your order reference as the payment reference. Orders are processed once payment reflects (1–2 business days).</p>
-              </div>
-            </div>
-
-            <!-- Mobile Pay -->
-            <div id="payment-mobile" class="payment-panel" style="display:none;">
-              <div class="mobile-pay-options">
-                <div class="mobile-pay-option">
-                  <div class="mobile-pay-logo">📱</div>
-                  <div>
-                    <strong>MTC Mobile Money</strong>
-                    <p>Send to: <strong>+264 61 262 175</strong></p>
-                    <p>Reference: <span id="mobile-reference">PMM-XXXXXX</span></p>
-                  </div>
-                </div>
-                <div class="mobile-pay-option">
-                  <div class="mobile-pay-logo">💚</div>
-                  <div>
-                    <strong>WhatsApp Pay</strong>
-                    <p>Send payment via WhatsApp to <strong>+264 61 262 175</strong></p>
-                    <p>Include your order reference in the message.</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Cash on Delivery -->
-            <div id="payment-cod" class="payment-panel" style="display:none;">
-              <div class="cod-info">
-                <div class="cod-icon">💵</div>
-                <h3>Pay on Delivery</h3>
-                <p>Pay in cash when your order arrives. Please have the exact amount ready.</p>
-                <p>Cash on delivery is available for orders within Windhoek only.</p>
-              </div>
+              <div id="stripe-card-element" class="stripe-element"></div>
+              <div id="stripe-card-errors" class="stripe-errors" role="alert"></div>
             </div>
 
             <div class="step-nav-btns">
@@ -308,8 +207,7 @@
                 </ul>
               </div>
               <div class="success-actions">
-                <button onclick="Checkout.goToStep(2)" class="btn btn-quote btn-lg">Try Again</button>
-                <button onclick="Checkout.setPaymentMethod('cod', document.querySelector('[data-method=cod]')); Checkout.goToStep(2);" class="btn btn-secondary btn-lg">Pay on Delivery Instead</button>
+                <button onclick="Checkout.goToStep(2)" class="btn btn-quote btn-lg">Try Again with Different Card</button>
               </div>
             </div>
           </section>

@@ -22,7 +22,14 @@
         </div>
       </div>
       <div class="admin-header-right">
-        <span id="admin-user-name" class="admin-user-name"></span>
+        <div class="admin-user-chip">
+          <div class="admin-avatar" id="admin-avatar">A</div>
+          <span id="admin-user-name" class="admin-user-name"></span>
+        </div>
+        <button class="admin-notif-btn" id="admin-notif-btn" onclick="Admin.toggleNotifications()" title="New orders">
+          🔔
+          <span class="admin-notif-badge" id="admin-notif-badge" style="display:none;">0</span>
+        </button>
         <a href="/" class="btn btn-secondary btn-sm">← View Site</a>
         <button onclick="Admin.logout()" class="btn btn-danger btn-sm">Sign Out</button>
       </div>
@@ -165,6 +172,58 @@
       </section>
 
     </main>
+  </div>
+
+  <!-- Notification Panel -->
+  <div id="admin-notif-panel" class="admin-notif-panel" style="display:none;">
+    <div class="admin-notif-header">
+      <span>New Orders</span>
+      <button onclick="Admin.clearNotifications()" class="admin-notif-clear">Clear all</button>
+    </div>
+    <div id="admin-notif-list" class="admin-notif-list"></div>
+  </div>
+
+  <!-- Reply Modal -->
+  <div id="reply-modal-overlay" class="admin-modal-overlay" onclick="Admin.closeReplyModal()"></div>
+  <div id="reply-modal" class="admin-modal" role="dialog" aria-modal="true" aria-label="Reply to message">
+    <div class="admin-modal-header">
+      <h3>Reply to Message</h3>
+      <button onclick="Admin.closeReplyModal()" class="admin-modal-close">✕</button>
+    </div>
+    <div class="admin-modal-body">
+      <div class="reply-to-info">
+        <span class="reply-to-label">To:</span>
+        <strong id="reply-to-name"></strong>
+        <span class="reply-to-email" id="reply-to-email"></span>
+      </div>
+
+      <div class="reply-original-wrap">
+        <div class="reply-original-label">Original message:</div>
+        <div class="reply-original-body" id="reply-original"></div>
+      </div>
+
+      <input type="hidden" id="reply-msg-id">
+
+      <div class="form-group" style="margin-top:1.25rem;">
+        <label for="reply-subject" style="font-size:0.8rem;font-weight:600;color:var(--color-text-muted);text-transform:uppercase;letter-spacing:0.06em;display:block;margin-bottom:0.4rem;">Subject</label>
+        <input type="text" id="reply-subject" class="admin-reply-input" placeholder="Re: Your enquiry">
+      </div>
+
+      <div class="form-group" style="margin-top:1rem;">
+        <label for="reply-body" style="font-size:0.8rem;font-weight:600;color:var(--color-text-muted);text-transform:uppercase;letter-spacing:0.06em;display:block;margin-bottom:0.4rem;">Your Reply</label>
+        <textarea id="reply-body" class="admin-reply-textarea" rows="7" placeholder="Type your reply here…"></textarea>
+      </div>
+
+      <div class="reply-note">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        Clicking Send will open your email client to deliver the reply. The reply is also saved here for your records.
+      </div>
+
+      <div class="reply-actions">
+        <button onclick="Admin.sendReply()" class="btn btn-quote">↩ Send Reply</button>
+        <button onclick="Admin.closeReplyModal()" class="btn btn-secondary">Cancel</button>
+      </div>
+    </div>
   </div>
 
   <!-- Order Detail Modal -->

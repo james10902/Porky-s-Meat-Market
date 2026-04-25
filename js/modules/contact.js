@@ -53,6 +53,12 @@ const Contact = {
       }
 
       Contact.showMessage('Thank you! Your message has been sent. We\'ll get back to you shortly.', 'success');
+      // Save to localStorage so admin can see it
+      try {
+        const msgs = JSON.parse(localStorage.getItem('porky_messages') || '[]');
+        msgs.unshift({ id: Date.now(), name, email, phone: form.phone ? form.phone.value.trim() : '', subject: form.subject ? form.subject.value.trim() : '', message, is_read: false, created_at: new Date().toISOString() });
+        localStorage.setItem('porky_messages', JSON.stringify(msgs));
+      } catch (e) {}
       form.reset();
     } catch (error) {
       Contact.showMessage(error.message || 'Something went wrong. Please try again or call us directly.', 'error');

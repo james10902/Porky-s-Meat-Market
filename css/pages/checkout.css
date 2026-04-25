@@ -891,3 +891,51 @@
   .success-details-grid { grid-template-columns: 1fr; }
   .payment-processing-box { padding: 2rem; min-width: 280px; }
 }
+
+/* =====================
+   Stripe Elements
+   ===================== */
+.stripe-card-wrap {
+  background-color: var(--color-mid-gray);
+  border: 1.5px solid var(--color-border-light);
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-xl);
+  margin-bottom: var(--spacing-xl);
+}
+
+.stripe-card-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  margin-bottom: var(--spacing-lg);
+  padding-bottom: var(--spacing-md);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.stripe-lock { font-size: 1rem; }
+
+.stripe-element {
+  background-color: var(--color-dark-gray);
+  border: 1.5px solid var(--color-border-light);
+  border-radius: var(--border-radius-md);
+  padding: 14px 16px;
+  transition: border-color var(--transition-base);
+}
+
+.stripe-element.StripeElement--focus {
+  border-color: var(--color-amber);
+  box-shadow: 0 0 0 3px rgba(245, 166, 35, 0.12);
+}
+
+.stripe-element.StripeElement--invalid {
+  border-color: var(--color-error);
+}
+
+.stripe-errors {
+  color: var(--color-error);
+  font-size: var(--font-size-xs);
+  margin-top: var(--spacing-sm);
+  min-height: 1.2em;
+}

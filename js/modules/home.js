@@ -148,10 +148,6 @@ const Home = {
   },
 
   addToCart: (productId, name, price, imageUrl) => {
-    if (typeof Auth !== 'undefined' && !Auth.isAuthenticated()) {
-      if (typeof AuthGate !== 'undefined') AuthGate.show();
-      return;
-    }
     const product = { id: productId, name: name, price: price, image_url: imageUrl || '', category: '' };
     Cart.addItem(product, 1);
     CartDrawer.open();
