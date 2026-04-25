@@ -22,4 +22,4 @@
 
 [functions]
   node_bundler            = "esbuild"
-  external_node_modules   = ["pg", "bcryptjs"]
+  external_node_modules   = ["pg", "bcryptjs", "jsonwebtoken"]
