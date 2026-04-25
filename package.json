@@ -1,0 +1,11 @@
+{
+  "name": "porkys-meat-market",
+  "version": "1.0.0",
+  "description": "Porky's Meat Market website",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "install:functions": "cd netlify/functions && npm install"
+  }
+}
