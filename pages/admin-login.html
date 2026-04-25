@@ -225,6 +225,52 @@
       </form>
 
       <a href="/" class="admin-back">← Back to Porky's Meat Market</a>
+
+      <!-- First-time setup -->
+      <div style="text-align:center;margin-top:1.25rem;">
+        <a href="#" id="setup-link" style="font-size:0.75rem;color:#444;text-decoration:none;transition:color 0.2s;">
+          First time? Create admin account →
+        </a>
+      </div>
+
+      <div id="setup-box" style="display:none;margin-top:1.5rem;padding-top:1.5rem;border-top:1px solid #2a2a2a;">
+        <h2 style="font-size:1rem;font-weight:700;color:#f2f2f2;margin-bottom:0.25rem;">Create Admin Account</h2>
+        <p style="font-size:0.8rem;color:#666;margin-bottom:1.25rem;">One-time setup. Requires the site setup key.</p>
+
+        <div id="setup-alert" class="admin-login-alert" role="alert"></div>
+
+        <form id="setup-form" novalidate>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
+            <div class="form-group">
+              <label for="setup-firstname">First Name</label>
+              <input type="text" id="setup-firstname" placeholder="John" required>
+            </div>
+            <div class="form-group">
+              <label for="setup-lastname">Last Name</label>
+              <input type="text" id="setup-lastname" placeholder="Smith" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="setup-email">Email Address</label>
+            <input type="email" id="setup-email" placeholder="admin@porkysmm.com" required>
+          </div>
+          <div class="form-group">
+            <label for="setup-password">Password</label>
+            <input type="password" id="setup-password" placeholder="Min. 8 characters" required minlength="8">
+          </div>
+          <div class="form-group">
+            <label for="setup-confirm">Confirm Password</label>
+            <input type="password" id="setup-confirm" placeholder="Repeat password" required>
+          </div>
+          <div class="form-group">
+            <label for="setup-secret">Setup Key</label>
+            <input type="password" id="setup-secret" placeholder="Enter setup key" required>
+          </div>
+          <button type="submit" class="admin-login-btn" style="margin-top:0.25rem;">
+            CREATE ADMIN ACCOUNT
+          </button>
+        </form>
+      </div>
     </div>
   </div>
 
@@ -233,22 +279,118 @@
   <script src="/js/modules/theme.js"></script>
   <script src="/js/modules/auth.js"></script>
   <script>
-    // If already logged in as admin, redirect
     document.addEventListener('DOMContentLoaded', () => {
-      if (typeof Auth !== 'undefined') {
-        const user = Auth.getCurrentUser();
-        if (user && user.role === 'admin') {
-          window.location.href = '/pages/admin.html';
-          return;
-        }
+
+      /* ── If already logged in as admin, go straight to dashboard ── */
+      const existing = typeof Auth !== 'undefined' ? Auth.getCurrentUser() : null;
+      if (existing && existing.role === 'admin') {
+        window.location.href = '/pages/admin.html';
+        return;
       }
 
-      const form    = document.getElementById('admin-login-form');
-      const alertEl = document.getElementById('admin-alert');
-      const btn     = document.getElementById('admin-login-btn');
-      const btnText = document.getElementById('admin-btn-text');
-      const spinner = document.getElementById('admin-spinner');
+      const form      = document.getElementById('admin-login-form');
+      const alertEl   = document.getElementById('admin-alert');
+      const btn       = document.getElementById('admin-login-btn');
+      const btnText   = document.getElementById('admin-btn-text');
+      const spinner   = document.getElementById('admin-spinner');
+      const setupLink = document.getElementById('setup-link');
+      const setupBox  = document.getElementById('setup-box');
+      const setupForm = document.getElementById('setup-form');
+      const setupAlert = document.getElementById('setup-alert');
 
+      /* ── Show/hide first-time setup panel ── */
+      setupLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        setupBox.style.display = setupBox.style.display === 'none' ? 'block' : 'none';
+        alertEl.style.display = 'none';
+      });
+
+      /* ── Create admin account ── */
+      setupForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        setupAlert.style.display = 'none';
+
+        const firstname = document.getElementById('setup-firstname').value.trim();
+        const lastname  = document.getElementById('setup-lastname').value.trim();
+        const email     = document.getElementById('setup-email').value.trim();
+        const password  = document.getElementById('setup-password').value;
+        const confirm   = document.getElementById('setup-confirm').value;
+        const secret    = document.getElementById('setup-secret').value.trim();
+
+        if (!firstname || !lastname || !email || !password) {
+          setupAlert.textContent = 'Please fill in all fields.';
+          setupAlert.style.display = 'block';
+          return;
+        }
+        if (password.length < 8) {
+          setupAlert.textContent = 'Password must be at least 8 characters.';
+          setupAlert.style.display = 'block';
+          return;
+        }
+        if (password !== confirm) {
+          setupAlert.textContent = 'Passwords do not match.';
+          setupAlert.style.display = 'block';
+          return;
+        }
+        if (secret !== 'PORKYS2025') {
+          setupAlert.textContent = 'Incorrect setup key. Contact the site owner.';
+          setupAlert.style.display = 'block';
+          return;
+        }
+
+        try {
+          const users = JSON.parse(localStorage.getItem('porky_users') || '[]');
+
+          /* Check if an admin already exists */
+          if (users.find(u => u.role === 'admin')) {
+            setupAlert.textContent = 'An admin account already exists. Please sign in above.';
+            setupAlert.style.display = 'block';
+            return;
+          }
+
+          /* Check email not already taken */
+          if (users.find(u => u.email.toLowerCase() === email.toLowerCase())) {
+            setupAlert.textContent = 'That email is already registered. Use a different email.';
+            setupAlert.style.display = 'block';
+            return;
+          }
+
+          const encoded = btoa(unescape(encodeURIComponent(password)));
+          const admin = {
+            id:        Date.now(),
+            firstname: firstname,
+            lastname:  lastname,
+            name:      firstname + ' ' + lastname,
+            email:     email.toLowerCase(),
+            phone:     '',
+            role:      'admin',
+            createdAt: new Date().toISOString(),
+            _pw:       encoded
+          };
+
+          users.push(admin);
+          localStorage.setItem('porky_users', JSON.stringify(users));
+
+          /* Auto sign in — must use the admin session key, not the customer key */
+          const session = { ...admin };
+          delete session._pw;
+          localStorage.setItem('porky_admin_session', JSON.stringify(session));
+
+          setupAlert.style.background = 'rgba(39,174,96,0.1)';
+          setupAlert.style.borderColor = '#27AE60';
+          setupAlert.style.color = '#27AE60';
+          setupAlert.textContent = '✅ Admin account created! Redirecting…';
+          setupAlert.style.display = 'block';
+
+          setTimeout(() => { window.location.href = '/pages/admin.html'; }, 1000);
+
+        } catch (err) {
+          setupAlert.textContent = 'Something went wrong. Please try again.';
+          setupAlert.style.display = 'block';
+        }
+      });
+
+      /* ── Sign in ── */
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
         alertEl.style.display = 'none';
@@ -277,13 +419,12 @@
 
           const user = result.user || Auth.getCurrentUser();
           if (!user || user.role !== 'admin') {
-            Auth.logout();
+            Auth._clearSession();
             alertEl.textContent = 'Access denied. This account does not have admin privileges.';
             alertEl.style.display = 'block';
             return;
           }
 
-          // Success — redirect to admin panel
           window.location.href = '/pages/admin.html';
 
         } catch (err) {

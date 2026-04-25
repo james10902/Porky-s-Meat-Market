@@ -58,6 +58,9 @@
         <button class="admin-nav-item" data-section="wholesale" onclick="Admin.showSection('wholesale', this)">
           <span>🏭</span> Wholesale Quotes
         </button>
+        <button class="admin-nav-item" data-section="account" onclick="Admin.showSection('account', this)">
+          <span>⚙️</span> My Account
+        </button>
       </nav>
     </aside>
 
@@ -168,6 +171,77 @@
         </div>
         <div class="admin-card">
           <div id="wholesale-container"><div class="admin-loading"><div class="spinner"></div></div></div>
+        </div>
+      </section>
+
+      <!-- ── ACCOUNT ── -->
+      <section id="section-account" class="admin-section">
+        <div class="admin-section-header">
+          <h1>My Account</h1>
+        </div>
+
+        <!-- Profile picture -->
+        <div class="admin-card" style="margin-bottom:1.5rem;">
+          <div class="admin-card-header"><h3>Profile Photo</h3></div>
+          <div style="display:flex;align-items:center;gap:1.5rem;padding:1.25rem;flex-wrap:wrap;">
+            <div style="position:relative;flex-shrink:0;">
+              <div id="admin-profile-avatar" style="width:88px;height:88px;border-radius:50%;background:linear-gradient(135deg,var(--color-amber),#c0392b);display:flex;align-items:center;justify-content:center;font-size:2rem;font-weight:700;color:#000;overflow:hidden;border:2px solid rgba(245,166,35,0.4);">A</div>
+              <button onclick="document.getElementById('admin-avatar-input').click()" style="position:absolute;bottom:2px;right:2px;width:26px;height:26px;border-radius:50%;background:var(--color-amber);color:#000;border:2px solid #0d0d0d;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:0.7rem;">✏️</button>
+            </div>
+            <div>
+              <p style="font-size:0.85rem;color:var(--color-text-secondary);margin-bottom:0.5rem;">JPG, PNG or GIF · Max 2MB</p>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                <button class="btn btn-secondary btn-sm" onclick="document.getElementById('admin-avatar-input').click()">Upload Photo</button>
+                <button class="btn btn-sm" id="admin-avatar-remove" style="background:transparent;border:1px solid var(--color-border-light);color:var(--color-text-muted);">Remove</button>
+              </div>
+              <input type="file" id="admin-avatar-input" accept="image/*" style="display:none;">
+            </div>
+          </div>
+        </div>
+
+        <!-- Profile details -->
+        <div class="admin-card" style="margin-bottom:1.5rem;">
+          <div class="admin-card-header"><h3>Profile Details</h3></div>
+          <form id="admin-account-form" style="padding:1.25rem;max-width:520px;">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
+              <div class="form-group">
+                <label for="admin-acc-firstname" style="font-size:0.8rem;font-weight:600;color:var(--color-text-muted);text-transform:uppercase;letter-spacing:0.06em;display:block;margin-bottom:0.4rem;">First Name</label>
+                <input type="text" id="admin-acc-firstname" class="admin-reply-input" style="width:100%;box-sizing:border-box;">
+              </div>
+              <div class="form-group">
+                <label for="admin-acc-lastname" style="font-size:0.8rem;font-weight:600;color:var(--color-text-muted);text-transform:uppercase;letter-spacing:0.06em;display:block;margin-bottom:0.4rem;">Last Name</label>
+                <input type="text" id="admin-acc-lastname" class="admin-reply-input" style="width:100%;box-sizing:border-box;">
+              </div>
+            </div>
+            <div class="form-group" style="margin-bottom:1rem;">
+              <label style="font-size:0.8rem;font-weight:600;color:var(--color-text-muted);text-transform:uppercase;letter-spacing:0.06em;display:block;margin-bottom:0.4rem;">Email Address</label>
+              <input type="email" id="admin-acc-email" class="admin-reply-input" readonly style="width:100%;box-sizing:border-box;opacity:0.5;cursor:not-allowed;">
+              <small style="color:var(--color-text-muted);font-size:0.75rem;">Email cannot be changed.</small>
+            </div>
+            <div id="admin-acc-msg" style="display:none;padding:0.6rem 1rem;border-radius:8px;font-size:0.85rem;background:rgba(39,174,96,0.1);border-left:3px solid var(--color-success);color:var(--color-success);margin-bottom:1rem;">Profile updated.</div>
+            <button type="submit" class="btn btn-quote">SAVE CHANGES</button>
+          </form>
+        </div>
+
+        <!-- Change password -->
+        <div class="admin-card">
+          <div class="admin-card-header"><h3>Change Password</h3></div>
+          <form id="admin-pw-form" style="padding:1.25rem;max-width:520px;">
+            <div class="form-group" style="margin-bottom:1rem;">
+              <label style="font-size:0.8rem;font-weight:600;color:var(--color-text-muted);text-transform:uppercase;letter-spacing:0.06em;display:block;margin-bottom:0.4rem;">Current Password</label>
+              <input type="password" id="admin-pw-current" class="admin-reply-input" placeholder="••••••••" style="width:100%;box-sizing:border-box;">
+            </div>
+            <div class="form-group" style="margin-bottom:1rem;">
+              <label style="font-size:0.8rem;font-weight:600;color:var(--color-text-muted);text-transform:uppercase;letter-spacing:0.06em;display:block;margin-bottom:0.4rem;">New Password</label>
+              <input type="password" id="admin-pw-new" class="admin-reply-input" placeholder="Min. 8 characters" style="width:100%;box-sizing:border-box;">
+            </div>
+            <div class="form-group" style="margin-bottom:1rem;">
+              <label style="font-size:0.8rem;font-weight:600;color:var(--color-text-muted);text-transform:uppercase;letter-spacing:0.06em;display:block;margin-bottom:0.4rem;">Confirm New Password</label>
+              <input type="password" id="admin-pw-confirm" class="admin-reply-input" placeholder="Repeat password" style="width:100%;box-sizing:border-box;">
+            </div>
+            <div id="admin-pw-msg" style="display:none;padding:0.6rem 1rem;border-radius:8px;font-size:0.85rem;margin-bottom:1rem;"></div>
+            <button type="submit" class="btn btn-quote">UPDATE PASSWORD</button>
+          </form>
         </div>
       </section>
 

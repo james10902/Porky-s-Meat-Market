@@ -37,22 +37,25 @@ const Admin = {
   /* ── INIT ─────────────────────────────────────────────────────────── */
   init: () => {
     const user = typeof Auth !== 'undefined' ? Auth.getCurrentUser() : null;
-    if (!user) { window.location.href = '/pages/login.html?return=/pages/admin.html'; return; }
-    if (user.role !== 'admin') {
-      document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;flex-direction:column;gap:1rem;font-family:sans-serif;background:#0a0a0a;color:#F0EDE8;">'
-        + '<div style="font-size:3rem;">🔒</div><h2>Admin Access Required</h2>'
-        + '<p style="color:#9A9590;">Your account does not have admin privileges.</p>'
-        + '<a href="/" style="color:#F5A623;">← Back to site</a></div>';
-      return;
-    }
+    if (!user) { window.location.href = '/pages/admin-login.html'; return; }
+    if (user.role !== 'admin') { window.location.href = '/pages/admin-login.html'; return; }
     const nameEl = document.getElementById('admin-user-name');
     if (nameEl) nameEl.textContent = user.firstname + ' ' + user.lastname;
 
-    // Admin avatar — always use initials, never the customer profile photo
+    // Admin avatar — initials, or saved photo
     const avatarEl = document.getElementById('admin-avatar');
     if (avatarEl) {
-      const initials = ((user.firstname?.[0] || '') + (user.lastname?.[0] || '')).toUpperCase() || 'A';
-      avatarEl.textContent = initials;
+      const savedPhoto = (() => { try { return localStorage.getItem('porky_admin_avatar'); } catch { return null; } })();
+      if (savedPhoto) {
+        avatarEl.innerHTML = '';
+        const img = document.createElement('img');
+        img.src = savedPhoto;
+        img.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:50%;';
+        avatarEl.appendChild(img);
+      } else {
+        const initials = ((user.firstname?.[0] || '') + (user.lastname?.[0] || '')).toUpperCase() || 'A';
+        avatarEl.textContent = initials;
+      }
     }
 
     Admin.loadOverview();
@@ -75,6 +78,7 @@ const Admin = {
     if (name === 'users')     Admin.loadUsers();
     if (name === 'messages')  Admin.loadMessages();
     if (name === 'wholesale') Admin.loadWholesale();
+    if (name === 'account')   Admin.loadAccount();
   },
 
   /* ── FORMATTERS ───────────────────────────────────────────────────── */
@@ -302,8 +306,17 @@ const Admin = {
     const idx    = orders.findIndex(o => (o.order_number || o.id) === orderRef);
     if (idx === -1) { Admin._toast('Order not found.', 'error'); return; }
     orders[idx].status = status;
+    // Also update payment_status when delivered
+    if (status === 'DELIVERED' && orders[idx].payment_status !== 'PAID') {
+      // leave payment_status as-is — don't auto-mark paid
+    }
     Admin._saveOrders(orders);
+    // ── Sync to customer's porky_orders so their dashboard reflects the change ──
+    // porky_orders IS the shared order store — both admin and customer read it.
+    // No extra step needed; they share the same localStorage key.
     Admin._toast('Order ' + orderRef + ' → ' + status.replace(/_/g, ' '), 'success');
+    // Refresh the orders table in place
+    Admin.loadOrders();
   },
 
   /* ── CUSTOMERS ────────────────────────────────────────────────────── */
@@ -616,14 +629,159 @@ const Admin = {
   },
 
   _openOrderFromNotif: (ref) => {
-    // Mark as seen
     const seen = Admin._getSeenOrders();
     if (!seen.includes(ref)) { seen.push(ref); localStorage.setItem('porky_admin_seen_orders', JSON.stringify(seen)); }
     Admin._checkNewOrders();
     document.getElementById('admin-notif-panel').style.display = 'none';
-    // Switch to orders section and open modal
     Admin.showSection('orders', document.querySelector('[data-section="orders"]'));
     setTimeout(() => Admin.viewOrder(ref), 300);
+  },
+
+  /* ── ACCOUNT SETTINGS ─────────────────────────────────────────────── */
+  loadAccount: () => {
+    const user = typeof Auth !== 'undefined' ? Auth.getCurrentUser() : null;
+    if (!user) return;
+
+    // Prefill fields
+    const set = (id, val) => { const el = document.getElementById(id); if (el && val != null) el.value = val; };
+    set('admin-acc-firstname', user.firstname);
+    set('admin-acc-lastname',  user.lastname);
+    set('admin-acc-email',     user.email);
+
+    // Load avatar
+    const avatarEl = document.getElementById('admin-profile-avatar');
+    const AVATAR_KEY = 'porky_admin_avatar';
+    const _loadAvatar = () => {
+      const saved = (() => { try { return localStorage.getItem(AVATAR_KEY); } catch { return null; } })();
+      if (saved && avatarEl) {
+        avatarEl.innerHTML = '';
+        const img = document.createElement('img');
+        img.src = saved; img.alt = 'Admin photo';
+        img.style.cssText = 'width:100%;height:100%;object-fit:cover;';
+        img.onerror = () => { avatarEl.textContent = (user.firstname?.[0] || 'A').toUpperCase(); };
+        avatarEl.appendChild(img);
+      } else if (avatarEl) {
+        avatarEl.innerHTML = '';
+        avatarEl.textContent = ((user.firstname?.[0] || '') + (user.lastname?.[0] || '')).toUpperCase() || 'A';
+      }
+    };
+    _loadAvatar();
+
+    // Avatar upload
+    const input = document.getElementById('admin-avatar-input');
+    if (input) {
+      const newInput = input.cloneNode(true);
+      input.parentNode.replaceChild(newInput, input);
+      newInput.addEventListener('change', () => {
+        const file = newInput.files[0];
+        if (!file) return;
+        if (file.size > 2 * 1024 * 1024) { Admin._toast('Image must be under 2MB.', 'error'); return; }
+        if (!file.type.startsWith('image/')) { Admin._toast('Please select an image file.', 'error'); return; }
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          try { localStorage.setItem(AVATAR_KEY, e.target.result); } catch { Admin._toast('Storage full.', 'error'); return; }
+          _loadAvatar();
+          // Update header avatar too
+          const headerAvatar = document.getElementById('admin-avatar');
+          if (headerAvatar) {
+            headerAvatar.innerHTML = '';
+            const img = document.createElement('img');
+            img.src = e.target.result;
+            img.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:50%;';
+            headerAvatar.appendChild(img);
+          }
+          Admin._toast('Photo updated!', 'success');
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    // Avatar remove
+    const removeBtn = document.getElementById('admin-avatar-remove');
+    if (removeBtn) {
+      const newBtn = removeBtn.cloneNode(true);
+      removeBtn.parentNode.replaceChild(newBtn, removeBtn);
+      newBtn.addEventListener('click', () => {
+        try { localStorage.removeItem(AVATAR_KEY); } catch {}
+        if (avatarEl) { avatarEl.innerHTML = ''; avatarEl.textContent = ((user.firstname?.[0] || '') + (user.lastname?.[0] || '')).toUpperCase() || 'A'; }
+        const headerAvatar = document.getElementById('admin-avatar');
+        if (headerAvatar) { headerAvatar.innerHTML = ''; headerAvatar.textContent = ((user.firstname?.[0] || '') + (user.lastname?.[0] || '')).toUpperCase() || 'A'; }
+        Admin._toast('Photo removed.', 'success');
+      });
+    }
+
+    // Profile form
+    const accForm = document.getElementById('admin-account-form');
+    if (accForm) {
+      const newForm = accForm.cloneNode(true);
+      accForm.parentNode.replaceChild(newForm, accForm);
+      newForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const firstname = document.getElementById('admin-acc-firstname').value.trim();
+        const lastname  = document.getElementById('admin-acc-lastname').value.trim();
+        if (!firstname || !lastname) { Admin._toast('Name cannot be empty.', 'error'); return; }
+
+        // Update in users array
+        const users = Admin._getUsers();
+        const idx = users.findIndex(u => u.id === user.id);
+        if (idx !== -1) {
+          users[idx].firstname = firstname;
+          users[idx].lastname  = lastname;
+          users[idx].name      = firstname + ' ' + lastname;
+          Admin._saveUsers(users);
+        }
+        // Update admin session
+        const session = { ...user, firstname, lastname, name: firstname + ' ' + lastname };
+        localStorage.setItem('porky_admin_session', JSON.stringify(session));
+
+        // Update header name
+        const nameEl = document.getElementById('admin-user-name');
+        if (nameEl) nameEl.textContent = firstname + ' ' + lastname;
+
+        const msgEl = document.getElementById('admin-acc-msg');
+        if (msgEl) { msgEl.style.display = 'block'; setTimeout(() => { msgEl.style.display = 'none'; }, 3000); }
+        Admin._toast('Profile updated.', 'success');
+      });
+    }
+
+    // Password form
+    const pwForm = document.getElementById('admin-pw-form');
+    if (pwForm) {
+      const newPwForm = pwForm.cloneNode(true);
+      pwForm.parentNode.replaceChild(newPwForm, pwForm);
+      newPwForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const current = document.getElementById('admin-pw-current').value;
+        const next    = document.getElementById('admin-pw-new').value;
+        const confirm = document.getElementById('admin-pw-confirm').value;
+        const msgEl   = document.getElementById('admin-pw-msg');
+
+        const showMsg = (txt, ok) => {
+          if (!msgEl) return;
+          msgEl.textContent = txt;
+          msgEl.style.background = ok ? 'rgba(39,174,96,0.1)' : 'rgba(231,76,60,0.1)';
+          msgEl.style.borderLeft = '3px solid ' + (ok ? 'var(--color-success)' : 'var(--color-error)');
+          msgEl.style.color = ok ? 'var(--color-success)' : 'var(--color-error)';
+          msgEl.style.display = 'block';
+          setTimeout(() => { msgEl.style.display = 'none'; }, 4000);
+        };
+
+        if (!current || !next || !confirm) { showMsg('Please fill in all fields.', false); return; }
+        if (next.length < 8) { showMsg('New password must be at least 8 characters.', false); return; }
+        if (next !== confirm) { showMsg('Passwords do not match.', false); return; }
+
+        const encoded = btoa(unescape(encodeURIComponent(current)));
+        const users = Admin._getUsers();
+        const idx = users.findIndex(u => u.id === user.id);
+        if (idx === -1 || users[idx]._pw !== encoded) { showMsg('Current password is incorrect.', false); return; }
+
+        users[idx]._pw = btoa(unescape(encodeURIComponent(next)));
+        Admin._saveUsers(users);
+        newPwForm.reset();
+        showMsg('Password updated successfully.', true);
+        Admin._toast('Password changed.', 'success');
+      });
+    }
   }
 };
 

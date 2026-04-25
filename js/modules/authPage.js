@@ -6,9 +6,17 @@
 
 const AuthPage = {
   init: () => {
+    // If a customer is already logged in, redirect them
     if (Auth.isAuthenticated()) {
-      const returnTo = new URLSearchParams(window.location.search).get('return') || '/';
-      window.location.href = returnTo;
+      const user = Auth.getCurrentUser();
+      // Admin should never be on the customer login page
+      if (user && user.role === 'admin') {
+        window.location.href = '/pages/admin.html';
+        return;
+      }
+      const returnTo = new URLSearchParams(window.location.search).get('return') || '/pages/products.html';
+      const safe = returnTo.includes('/admin') ? '/pages/products.html' : returnTo;
+      window.location.href = safe;
       return;
     }
     const params = new URLSearchParams(window.location.search);
@@ -65,7 +73,9 @@ const AuthPage = {
   /* ── Redirect after auth ── */
   _redirect: () => {
     const returnTo = new URLSearchParams(window.location.search).get('return') || '/pages/products.html';
-    window.location.href = returnTo;
+    // Never redirect a customer to an admin page
+    const safe = returnTo.includes('/admin') ? '/pages/products.html' : returnTo;
+    window.location.href = safe;
   },
 
   /* ── Google Sign-In (Firebase only) ── */
