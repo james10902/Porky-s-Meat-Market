@@ -122,3 +122,42 @@ See `backend/README.md` for full API documentation.
 **Frontend:** HTML5 · CSS3 (custom design system) · Vanilla JS (ES6+)  
 **Backend:** Node.js · Express · PostgreSQL · JWT · bcryptjs  
 **Design:** CSS Variables · Flexbox · CSS Grid · Inter + Bebas Neue fonts
+
+
+---
+
+## Netlify Deployment (Serverless)
+
+The project now supports Netlify Functions for serverless deployment:
+
+### Netlify Functions Structure
+```
+netlify/
+├── functions/
+│   ├── auth.js          # /api/auth/* endpoints
+│   ├── products.js      # /api/products/* endpoints
+│   ├── orders.js        # /api/orders/* endpoints
+│   ├── contact.js       # /api/contact/* endpoints
+│   ├── health.js        # /api/health endpoint
+│   ├── db.js            # Database connection
+│   ├── middleware.js    # Shared middleware utilities
+│   └── package.json     # Function dependencies
+netlify.toml             # Netlify configuration
+```
+
+### Deployment Steps
+1. Set up PostgreSQL database (Supabase, Neon, Railway, or Render)
+2. Configure environment variables in Netlify:
+   - `DATABASE_URL`: PostgreSQL connection string
+   - `JWT_SECRET`: Random secret for JWT tokens
+   - `ALLOWED_ORIGINS`: Your Netlify domain
+3. Push to GitHub and connect to Netlify
+4. Netlify will automatically deploy using `netlify.toml`
+
+See `NETLIFY_DEPLOYMENT.md` for detailed instructions.
+
+### Benefits
+- **Serverless**: No server management, scales automatically
+- **Integrated**: Frontend and backend deployed together
+- **Cost-effective**: Free tier available
+- **Simple deployment**: Git-based deployment workflow

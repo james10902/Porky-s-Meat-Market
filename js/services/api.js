@@ -5,11 +5,8 @@
  */
 
 const API = {
-  // In production the frontend is served by the same Express server.
-  // In development (e.g. Live Server on :5500) point to the API server.
-  baseURL: window.location.port === '3000'
-    ? '/api'
-    : 'http://localhost:3000/api',
+  // For Netlify Functions deployment
+  baseURL: '/api',
 
   // JWT token (loaded from localStorage on init)
   token: null,
