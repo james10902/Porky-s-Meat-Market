@@ -1,57 +1,79 @@
 /**
- * Theme Module — Day / Night toggle
+ * Theme Module — Dark / Light / System toggle
  * Applies a full CSS variable swap via data-theme attribute.
  * Light theme tokens are defined in design-system.css under [data-theme="light"].
  */
 
 const Theme = {
   STORAGE_KEY:   'porky_theme',
-  DEFAULT_THEME: 'dark',
+  DEFAULT_THEME: 'system',
+
+  // Modes cycle: dark → light → system → dark
+  MODES: ['dark', 'light', 'system'],
 
   getCurrent: () => localStorage.getItem(Theme.STORAGE_KEY) || Theme.DEFAULT_THEME,
 
-  set: (theme) => {
-    localStorage.setItem(Theme.STORAGE_KEY, theme);
-    Theme.apply(theme);
-    Theme._updateToggle(theme);
-    Theme._emit('changed', { theme });
+  /* Returns the resolved theme (dark/light) for a given mode */
+  _resolve: (mode) => {
+    if (mode === 'system') {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    return mode;
+  },
+
+  set: (mode) => {
+    localStorage.setItem(Theme.STORAGE_KEY, mode);
+    const resolved = Theme._resolve(mode);
+    Theme.apply(resolved);
+    Theme._updateToggle(mode, resolved);
+    Theme._emit('changed', { theme: resolved, mode });
   },
 
   toggle: () => {
-    const next = Theme.getCurrent() === 'dark' ? 'light' : 'dark';
+    const current = Theme.getCurrent();
+    const idx  = Theme.MODES.indexOf(current);
+    const next = Theme.MODES[(idx + 1) % Theme.MODES.length];
     Theme.set(next);
     return next;
   },
 
-  apply: (theme) => {
-    document.documentElement.setAttribute('data-theme', theme);
-    // color-scheme hint for browser UI (scrollbars, inputs, etc.)
-    document.documentElement.style.colorScheme = theme;
+  apply: (resolvedTheme) => {
+    document.documentElement.setAttribute('data-theme', resolvedTheme);
+    document.documentElement.style.colorScheme = resolvedTheme;
   },
 
-  _updateToggle: (theme) => {
+  _updateToggle: (mode, resolved) => {
     const btn = document.getElementById('theme-toggle');
     if (!btn) return;
-    const isDark = theme === 'dark';
-    btn.setAttribute('aria-label', isDark ? 'Switch to light mode' : 'Switch to dark mode');
-    btn.setAttribute('title',      isDark ? 'Light mode'           : 'Dark mode');
-    // Update icon
+
+    const icons  = { dark: '☀️', light: '🌙', system: '💻' };
+    const labels = {
+      dark:   'Switch to light mode',
+      light:  'Switch to system mode',
+      system: 'Switch to dark mode'
+    };
+    const titles = { dark: 'Light mode', light: 'System mode', system: 'Dark mode' };
+
+    btn.setAttribute('aria-label', labels[mode] || labels.dark);
+    btn.setAttribute('title',      titles[mode] || titles.dark);
+
     const icon = btn.querySelector('.theme-icon');
-    if (icon) icon.textContent = isDark ? '☀️' : '🌙';
-    btn.classList.toggle('theme-light', !isDark);
+    if (icon) icon.textContent = icons[mode] || icons.dark;
+
+    btn.classList.toggle('theme-light',  mode === 'light');
+    btn.classList.toggle('theme-system', mode === 'system');
   },
 
   init: () => {
-    // Respect OS preference on first visit
+    // Default to system on first visit
     if (!localStorage.getItem(Theme.STORAGE_KEY)) {
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      localStorage.setItem(Theme.STORAGE_KEY, prefersDark ? 'dark' : 'light');
+      localStorage.setItem(Theme.STORAGE_KEY, 'system');
     }
 
-    const current = Theme.getCurrent();
-    Theme.apply(current);
+    const mode     = Theme.getCurrent();
+    const resolved = Theme._resolve(mode);
+    Theme.apply(resolved);
 
-    // Wire up toggle button once DOM is ready
     const wire = () => {
       const btn = document.getElementById('theme-toggle');
       if (btn) {
@@ -59,7 +81,7 @@ const Theme = {
           e.preventDefault();
           Theme.toggle();
         });
-        Theme._updateToggle(current);
+        Theme._updateToggle(mode, resolved);
       }
     };
 
@@ -69,10 +91,10 @@ const Theme = {
       wire();
     }
 
-    // Listen for OS preference changes
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
-      if (!localStorage.getItem(Theme.STORAGE_KEY)) {
-        Theme.set(e.matches ? 'dark' : 'light');
+    // React to OS preference changes when in system mode
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+      if (Theme.getCurrent() === 'system') {
+        Theme.set('system');
       }
     });
   },

@@ -3,15 +3,16 @@
    ===================== */
 
 /* =====================
-   HERO
+   HERO — always uses photo background, text must always be white
+   regardless of theme
    ===================== */
 .hero {
-  background-color: var(--color-black);
+  background-color: #0a0a0a;
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
   position: relative;
-  color: var(--color-text-primary);
+  color: #ffffff;
   padding: 120px var(--spacing-xl) 100px;
   display: flex;
   align-items: center;
@@ -25,12 +26,38 @@
   position: absolute;
   inset: 0;
   background: linear-gradient(
-    135deg,
-    rgba(0, 0, 0, 0.82) 0%,
-    rgba(139, 0, 0, 0.45) 55%,
-    rgba(0, 0, 0, 0.72) 100%
+    110deg,
+    rgba(0, 0, 0, 0.80) 0%,
+    rgba(0, 0, 0, 0.55) 50%,
+    rgba(0, 0, 0, 0.65) 100%
   );
   pointer-events: none;
+}
+
+/* Force white text on hero regardless of theme */
+.hero h1,
+.hero p,
+.hero .hero-badge,
+.hero .stat-label {
+  color: #ffffff !important;
+}
+
+.hero p {
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.hero .stat-label {
+  color: rgba(255, 255, 255, 0.65) !important;
+}
+
+/* Light mode: keep hero overlay strong enough for readability */
+[data-theme="light"] .hero::before {
+  background: linear-gradient(
+    110deg,
+    rgba(0, 0, 0, 0.82) 0%,
+    rgba(0, 0, 0, 0.60) 50%,
+    rgba(0, 0, 0, 0.70) 100%
+  );
 }
 
 .hero > * { position: relative; z-index: 1; }
@@ -389,22 +416,33 @@
    WHOLESALE CTA
    ===================== */
 .wholesale-cta {
-  background: linear-gradient(135deg, #1a0000 0%, var(--color-crimson) 50%, #1a0000 100%);
   padding: var(--spacing-3xl) var(--spacing-xl);
   text-align: center;
   position: relative;
   overflow: hidden;
+  min-height: 340px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
+/* Background photo — full visibility */
 .wholesale-cta::before {
   content: '';
   position: absolute;
   inset: 0;
-  background: url('/assets/Background Image.jpg') center/cover no-repeat;
-  opacity: 0.08;
+  background: url('/assets/Images/Delivery Vehicle.jpg') center/cover no-repeat;
 }
 
-.cta-content { position: relative; z-index: 1; }
+/* Minimal dark scrim — just enough for text legibility, no red tint */
+.wholesale-cta::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.48);
+}
+
+.cta-content { position: relative; z-index: 2; }
 
 .cta-content h2 {
   font-size: clamp(2rem, 5vw, 3.5rem);

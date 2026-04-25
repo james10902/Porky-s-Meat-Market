@@ -1253,3 +1253,174 @@ label {
 @media (max-width: 900px) {
   .nav-admin-btn { display: none; }
 }
+
+/* =====================
+   NAV PROFILE WIDGET
+   ===================== */
+.nav-profile {
+  position: relative;
+}
+
+.nav-profile-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: none;
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--border-radius-lg);
+  padding: 0.35rem 0.75rem 0.35rem 0.4rem;
+  cursor: pointer;
+  color: var(--color-text-primary);
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  transition: all var(--transition-base);
+  white-space: nowrap;
+}
+
+.nav-profile-btn:hover,
+.nav-profile.open .nav-profile-btn {
+  border-color: var(--color-amber);
+  background-color: rgba(245, 166, 35, 0.06);
+}
+
+.nav-profile-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--color-amber);
+  color: #0a0a0a;
+  font-size: 0.7rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  letter-spacing: 0.02em;
+}
+
+.nav-profile-name {
+  max-width: 90px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.nav-profile-caret {
+  opacity: 0.5;
+  transition: transform var(--transition-base);
+  flex-shrink: 0;
+}
+
+.nav-profile.open .nav-profile-caret {
+  transform: rotate(180deg);
+}
+
+/* Dropdown */
+.nav-profile-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 220px;
+  background: var(--color-mid-gray);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: 0.5rem;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-6px);
+  transition: all var(--transition-base);
+  z-index: var(--z-dropdown);
+}
+
+.nav-profile.open .nav-profile-dropdown {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.nav-profile-info {
+  padding: 0.6rem 0.75rem 0.75rem;
+  border-bottom: 1px solid var(--color-border);
+  margin-bottom: 0.4rem;
+}
+
+.nav-profile-info-name {
+  display: block;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin-bottom: 2px;
+}
+
+.nav-profile-info-email {
+  display: block;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nav-profile-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.55rem 0.75rem;
+  border-radius: var(--border-radius-md);
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: all var(--transition-fast);
+}
+
+.nav-profile-item:hover {
+  background: rgba(245, 166, 35, 0.08);
+  color: var(--color-text-primary);
+}
+
+.nav-profile-divider {
+  height: 1px;
+  background: var(--color-border);
+  margin: 0.4rem 0;
+}
+
+.nav-profile-signout:hover {
+  background: rgba(231, 76, 60, 0.08) !important;
+  color: var(--color-error) !important;
+}
+
+/* Nav sign-in link (injected when logged out) */
+.nav-signin-desktop {
+  display: inline-flex;
+  align-items: center;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.06em;
+  text-decoration: none;
+  padding: 0.4rem 0.75rem;
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--border-radius-md);
+  transition: all var(--transition-base);
+  white-space: nowrap;
+}
+
+.nav-signin-desktop:hover {
+  color: var(--color-amber);
+  border-color: var(--color-amber);
+}
+
+.nav-signin-desktop::after { display: none !important; }
+
+@media (max-width: 900px) {
+  .nav-profile { display: none; }
+  .nav-signin-desktop { display: none; }
+}

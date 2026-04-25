@@ -6,43 +6,24 @@
   <meta name="description" content="Sign in or create an account — Porky's Meat Market">
   <title>Sign In — Porky's Meat Market</title>
 
+  <!-- Firebase SDK — loaded synchronously so it's ready before deferred scripts -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+
   <link rel="stylesheet" href="/css/design-system.css">
   <link rel="stylesheet" href="/css/components.css">
-  <link rel="stylesheet" href="/css/footer.css">
   <link rel="stylesheet" href="/css/pages/login.css">
 </head>
 <body class="login-page">
 
-  <!-- Navigation -->
-  <nav id="navbar" role="navigation" aria-label="Main navigation">
-    <div class="container nav-container">
-      <div class="logo">
-        <a href="/" class="logo-link">
-          <img src="/assets/Images/Porky logo.jpg" alt="Porky's Meat Market" class="logo-img">
-          <span class="logo-text">PORKY'S MEAT<br>MARKET</span>
-        </a>
-      </div>
-      <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">
-        <span></span><span></span><span></span>
-      </button>
-      <ul class="nav-menu" id="nav-menu">
-        <li><a href="/" class="nav-link">HOME</a></li>
-        <li><a href="/pages/products.html" class="nav-link">PRODUCTS</a></li>
-        <li><a href="/pages/heritage.html" class="nav-link">HERITAGE</a></li>
-        <li><a href="/pages/wholesale.html" class="nav-link">WHOLESALE</a></li>
-        <li><a href="/pages/contact.html" class="nav-link">CONTACT</a></li>
-      </ul>
-    </div>
-  </nav>
-
-  <!-- Auth Section -->
   <main class="auth-main">
     <div class="auth-split">
 
-      <!-- Left — branding panel -->
+      <!-- ── Left: branding ── -->
       <div class="auth-brand" style="background-image: url('/assets/Background Image.jpg');">
         <div class="auth-brand-overlay"></div>
         <div class="auth-brand-content">
+          <a href="/" class="auth-brand-back">← Back to site</a>
           <img src="/assets/Images/Porky logo.jpg" alt="Porky's Meat Market" class="auth-brand-logo">
           <h1>PORKY'S<br>MEAT MARKET</h1>
           <p>Freshness starts here. Sign in to browse our full catalogue, place orders, and track deliveries.</p>
@@ -54,23 +35,38 @@
         </div>
       </div>
 
-      <!-- Right — form panel -->
+      <!-- ── Right: form ── -->
       <div class="auth-form-panel">
         <div class="auth-form-wrap">
 
-          <!-- Tab switcher -->
+          <!-- Back button -->
+          <a href="/" class="auth-back-home">← Back to Porky's</a>
+
+          <!-- Tabs -->
           <div class="auth-tabs" role="tablist">
-            <button class="auth-tab active" id="tab-login" role="tab" aria-selected="true" aria-controls="panel-login" onclick="AuthPage.showTab('login')">Sign In</button>
-            <button class="auth-tab" id="tab-register" role="tab" aria-selected="false" aria-controls="panel-register" onclick="AuthPage.showTab('register')">Create Account</button>
+            <button class="auth-tab active" id="tab-login" role="tab" aria-selected="true" onclick="AuthPage.showTab('login')">Sign In</button>
+            <button class="auth-tab" id="tab-register" role="tab" aria-selected="false" onclick="AuthPage.showTab('register')">Create Account</button>
           </div>
 
-          <!-- Alert area -->
+          <!-- Alert -->
           <div id="auth-alert" class="auth-alert" style="display:none;" role="alert"></div>
 
-          <!-- LOGIN PANEL -->
-          <div id="panel-login" class="auth-panel active" role="tabpanel" aria-labelledby="tab-login">
+          <!-- ── SIGN IN ── -->
+          <div id="panel-login" class="auth-panel active">
             <h2>Welcome back</h2>
             <p class="auth-subtitle">Sign in to your account to continue shopping.</p>
+
+            <button type="button" class="btn-google" id="google-signin-btn" onclick="AuthPage.googleSignIn()">
+              <svg width="20" height="20" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+              </svg>
+              Continue with Google
+            </button>
+
+            <div class="auth-divider"><span>or sign in with email</span></div>
 
             <form id="login-form" class="auth-form" novalidate>
               <div class="form-group">
@@ -84,7 +80,9 @@
                 </label>
                 <div class="input-password-wrap">
                   <input type="password" id="login-password" name="password" placeholder="••••••••" autocomplete="current-password" required>
-                  <button type="button" class="toggle-password" aria-label="Show password" onclick="AuthPage.togglePassword('login-password', this)">👁</button>
+                  <button type="button" class="toggle-password" aria-label="Show password" onclick="AuthPage.togglePassword('login-password', this)">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                  </button>
                 </div>
               </div>
               <div class="form-group form-check">
@@ -102,10 +100,22 @@
             <p class="auth-switch">Don't have an account? <a href="#" onclick="AuthPage.showTab('register'); return false;">Create one free</a></p>
           </div>
 
-          <!-- REGISTER PANEL -->
-          <div id="panel-register" class="auth-panel" role="tabpanel" aria-labelledby="tab-register">
+          <!-- ── CREATE ACCOUNT ── -->
+          <div id="panel-register" class="auth-panel">
             <h2>Create your account</h2>
             <p class="auth-subtitle">Join thousands of customers ordering fresh meat daily.</p>
+
+            <button type="button" class="btn-google" onclick="AuthPage.googleSignIn()">
+              <svg width="20" height="20" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+              </svg>
+              Sign up with Google
+            </button>
+
+            <div class="auth-divider"><span>or create with email</span></div>
 
             <form id="register-form" class="auth-form" novalidate>
               <div class="form-row">
@@ -130,7 +140,9 @@
                 <label for="reg-password">Password</label>
                 <div class="input-password-wrap">
                   <input type="password" id="reg-password" name="password" placeholder="Min. 8 characters" autocomplete="new-password" required minlength="8">
-                  <button type="button" class="toggle-password" aria-label="Show password" onclick="AuthPage.togglePassword('reg-password', this)">👁</button>
+                  <button type="button" class="toggle-password" aria-label="Show password" onclick="AuthPage.togglePassword('reg-password', this)">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                  </button>
                 </div>
                 <div class="password-strength" id="password-strength"></div>
               </div>
@@ -138,7 +150,9 @@
                 <label for="reg-confirm">Confirm password</label>
                 <div class="input-password-wrap">
                   <input type="password" id="reg-confirm" name="confirm" placeholder="Repeat password" autocomplete="new-password" required>
-                  <button type="button" class="toggle-password" aria-label="Show password" onclick="AuthPage.togglePassword('reg-confirm', this)">👁</button>
+                  <button type="button" class="toggle-password" aria-label="Show password" onclick="AuthPage.togglePassword('reg-confirm', this)">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                  </button>
                 </div>
               </div>
               <div class="form-group form-check">
@@ -156,16 +170,39 @@
             <p class="auth-switch">Already have an account? <a href="#" onclick="AuthPage.showTab('login'); return false;">Sign in</a></p>
           </div>
 
+          <!-- ── FORGOT PASSWORD ── -->
+          <div id="panel-forgot" class="auth-panel">
+            <button class="auth-back-btn" onclick="AuthPage.showTab('login')">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+              Back to Sign In
+            </button>
+            <h2>Reset Password</h2>
+            <p class="auth-subtitle">Enter your email and we'll send you a reset link.</p>
+
+            <div id="forgot-alert" class="auth-alert" style="display:none;" role="alert"></div>
+
+            <form id="forgot-form" class="auth-form" novalidate>
+              <div class="form-group">
+                <label for="forgot-email">Email address</label>
+                <input type="email" id="forgot-email" name="email" placeholder="you@example.com" autocomplete="email" required>
+              </div>
+              <button type="submit" class="btn btn-quote btn-lg auth-submit" id="forgot-btn">
+                <span class="btn-text">SEND RESET LINK</span>
+                <span class="btn-spinner" style="display:none;"></span>
+              </button>
+            </form>
+          </div>
+
         </div>
       </div>
     </div>
   </main>
 
-  <!-- Scripts -->
-  <script src="/js/utils/dom.js" defer></script>
-  <script src="/js/services/api.js" defer></script>
-  <script src="/js/modules/auth.js" defer></script>
-  <script src="/js/modules/nav.js" defer></script>
-  <script src="/js/modules/authPage.js" defer></script>
+  <script src="/js/utils/dom.js"></script>
+  <script src="/js/services/api.js"></script>
+  <script src="/js/modules/theme.js"></script>
+  <script src="/js/modules/auth.js"></script>
+  <script src="/js/modules/firebase-auth.js"></script>
+  <script src="/js/modules/authPage.js"></script>
 </body>
 </html>

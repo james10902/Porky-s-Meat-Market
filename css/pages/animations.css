@@ -1,0 +1,371 @@
+/* =====================
+   Global Animations & Scroll Effects
+   ===================== */
+
+/* ── Scroll-reveal base ── */
+.reveal {
+  opacity: 0;
+  transform: translateY(32px);
+  transition: opacity 0.65s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.65s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.reveal-left {
+  opacity: 0;
+  transform: translateX(-40px);
+  transition: opacity 0.65s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.65s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.reveal-left.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.reveal-right {
+  opacity: 0;
+  transform: translateX(40px);
+  transition: opacity 0.65s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.65s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.reveal-right.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Stagger delays for grid children */
+.reveal-stagger > *:nth-child(1) { transition-delay: 0ms; }
+.reveal-stagger > *:nth-child(2) { transition-delay: 80ms; }
+.reveal-stagger > *:nth-child(3) { transition-delay: 160ms; }
+.reveal-stagger > *:nth-child(4) { transition-delay: 240ms; }
+.reveal-stagger > *:nth-child(5) { transition-delay: 320ms; }
+.reveal-stagger > *:nth-child(6) { transition-delay: 400ms; }
+
+/* ── Product card hover ── */
+.product-card {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 0.3s ease;
+}
+
+.product-card:hover {
+  transform: translateY(-6px) scale(1.01);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(245, 166, 35, 0.2);
+}
+
+.product-card .product-image {
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.product-card:hover .product-image {
+  transform: scale(1.07);
+}
+
+/* ── Homepage product slider ── */
+.product-slider-track {
+  display: flex;
+  gap: var(--spacing-xl);
+  animation: slideProducts 28s linear infinite;
+  width: max-content;
+}
+
+.product-slider-track:hover {
+  animation-play-state: paused;
+}
+
+@keyframes slideProducts {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.product-slider-wrapper {
+  overflow: hidden;
+  position: relative;
+  mask-image: linear-gradient(90deg, transparent 0%, black 8%, black 92%, transparent 100%);
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, black 8%, black 92%, transparent 100%);
+}
+
+.product-slider-wrapper::before,
+.product-slider-wrapper::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 80px;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.product-slider-wrapper::before {
+  left: 0;
+  background: linear-gradient(90deg, var(--color-black), transparent);
+}
+
+.product-slider-wrapper::after {
+  right: 0;
+  background: linear-gradient(-90deg, var(--color-black), transparent);
+}
+
+/* Slider card */
+.slider-card {
+  flex-shrink: 0;
+  width: 220px;
+  background: var(--color-mid-gray);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-lg);
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.slider-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+  border-color: rgba(245, 166, 35, 0.4);
+}
+
+.slider-card img {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.slider-card:hover img {
+  transform: scale(1.06);
+}
+
+.slider-card-info {
+  padding: var(--spacing-md);
+}
+
+.slider-card-name {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.slider-card-price {
+  font-size: var(--font-size-xs);
+  color: var(--color-amber);
+  font-weight: var(--font-weight-bold);
+}
+
+/* ── Hero entrance animations ── */
+@keyframes heroFadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes heroBadgePop {
+  from { opacity: 0; transform: rotate(-1.5deg) scale(0.85); }
+  to   { opacity: 1; transform: rotate(-1.5deg) scale(1); }
+}
+
+@keyframes heroStatCount {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.hero-badge       { animation: heroBadgePop 0.5s 0.1s both ease; }
+.hero h1          { animation: heroFadeUp   0.7s 0.25s both ease; }
+.hero p           { animation: heroFadeUp   0.7s 0.4s  both ease; }
+.hero-buttons     { animation: heroFadeUp   0.7s 0.55s both ease; }
+.hero-stats       { animation: heroFadeUp   0.7s 0.65s both ease; }
+.stat-item        { animation: heroStatCount 0.6s both ease; }
+.stat-item:nth-child(1) { animation-delay: 0.7s; }
+.stat-item:nth-child(2) { animation-delay: 0.85s; }
+.stat-item:nth-child(3) { animation-delay: 1s; }
+
+/* ── Feature strip hover ── */
+.feature-item {
+  transition: transform 0.3s ease;
+}
+
+.feature-item:hover {
+  transform: translateY(-4px);
+}
+
+.feature-icon {
+  transition: transform 0.3s ease;
+  display: inline-block;
+}
+
+.feature-item:hover .feature-icon {
+  transform: scale(1.2) rotate(-5deg);
+}
+
+/* ── Value card pulse border ── */
+@keyframes amberPulse {
+  0%, 100% { border-left-color: var(--color-amber); }
+  50%       { border-left-color: var(--color-amber-light); }
+}
+
+.value-card:hover {
+  animation: amberPulse 1.5s ease infinite;
+}
+
+/* ── Button ripple ── */
+.btn {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.08);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  border-radius: inherit;
+}
+
+.btn:active::after {
+  opacity: 1;
+}
+
+/* ── Gallery strip zoom ── */
+.gallery-strip img {
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+              filter 0.4s ease;
+}
+
+/* ── Nav link hover underline ── */
+nav a::after {
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ── WhatsApp glitch widget ── */
+.whatsapp-widget {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  z-index: var(--z-fixed);
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background: #25D366;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  text-decoration: none;
+  box-shadow: 0 4px 20px rgba(37, 211, 102, 0.45);
+  animation: waGlitch 4s ease-in-out infinite;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.whatsapp-widget:hover {
+  transform: scale(1.12);
+  box-shadow: 0 6px 28px rgba(37, 211, 102, 0.65);
+  animation: none;
+}
+
+.whatsapp-widget svg {
+  width: 30px;
+  height: 30px;
+  fill: #fff;
+}
+
+/* Glitch keyframes */
+@keyframes waGlitch {
+  0%, 90%, 100% {
+    transform: translate(0, 0);
+    filter: none;
+    box-shadow: 0 4px 20px rgba(37, 211, 102, 0.45);
+  }
+  91% {
+    transform: translate(-3px, 1px);
+    filter: hue-rotate(90deg) brightness(1.3);
+    box-shadow: 3px 0 0 rgba(255, 0, 0, 0.5), -3px 0 0 rgba(0, 255, 255, 0.5);
+  }
+  92% {
+    transform: translate(3px, -1px);
+    filter: hue-rotate(-90deg) brightness(1.2);
+    box-shadow: -3px 0 0 rgba(255, 0, 0, 0.5), 3px 0 0 rgba(0, 255, 255, 0.5);
+  }
+  93% {
+    transform: translate(-2px, 2px);
+    filter: none;
+    box-shadow: 0 4px 20px rgba(37, 211, 102, 0.45);
+  }
+  94% {
+    transform: translate(2px, -2px);
+    filter: hue-rotate(180deg) brightness(1.4);
+    box-shadow: 2px 0 0 rgba(255, 0, 0, 0.6), -2px 0 0 rgba(0, 255, 255, 0.6);
+  }
+  95% {
+    transform: translate(0, 0);
+    filter: none;
+  }
+}
+
+/* Pulse ring */
+.whatsapp-widget::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 2px solid rgba(37, 211, 102, 0.5);
+  animation: waPulse 2.5s ease-out infinite;
+}
+
+@keyframes waPulse {
+  0%   { transform: scale(1); opacity: 0.7; }
+  100% { transform: scale(1.5); opacity: 0; }
+}
+
+/* Tooltip */
+.whatsapp-widget::after {
+  content: 'Chat on WhatsApp';
+  position: absolute;
+  right: calc(100% + 12px);
+  top: 50%;
+  transform: translateY(-50%);
+  background: #1a1a1a;
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+  padding: 6px 12px;
+  border-radius: 6px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  font-family: var(--font-family-primary);
+}
+
+.whatsapp-widget:hover::after {
+  opacity: 1;
+}
+
+/* ── Reduce motion ── */
+@media (prefers-reduced-motion: reduce) {
+  .reveal, .reveal-left, .reveal-right,
+  .product-slider-track,
+  .hero-badge, .hero h1, .hero p, .hero-buttons, .hero-stats, .stat-item {
+    animation: none !important;
+    transition: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .whatsapp-widget {
+    animation: none;
+  }
+
+  .whatsapp-widget::before {
+    animation: none;
+  }
+}

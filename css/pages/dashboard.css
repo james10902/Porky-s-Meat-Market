@@ -546,3 +546,76 @@
   .tracking-search { flex-direction: column; }
   .dashboard-toast { left: 1rem; right: 1rem; bottom: 1rem; }
 }
+
+/* ── Profile Picture ── */
+.profile-pic-section {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xl);
+  background: var(--color-mid-gray);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-xl);
+  margin-bottom: var(--spacing-xl);
+  flex-wrap: wrap;
+}
+
+.profile-pic-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.profile-pic-avatar {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--color-amber), var(--color-crimson-light));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.2rem;
+  color: var(--color-black);
+  font-weight: var(--font-weight-bold);
+  overflow: hidden;
+  border: 2px solid rgba(245, 166, 35, 0.4);
+}
+
+.profile-pic-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.profile-pic-edit {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--color-amber);
+  color: var(--color-black);
+  border: 2px solid var(--color-black);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.profile-pic-edit:hover {
+  background: var(--color-amber-light);
+}
+
+.profile-pic-label {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin-bottom: 2px;
+  font-size: var(--font-size-sm);
+}
+
+.profile-pic-hint {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  margin: 0;
+}

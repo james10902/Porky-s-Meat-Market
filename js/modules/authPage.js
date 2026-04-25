@@ -1,21 +1,25 @@
 /**
- * AuthPage Module — Drives the login/register page UI
+ * AuthPage Module — Login/Register page UI
+ * Uses Firebase for Google Sign-In.
+ * Uses localStorage auth for email/password (reliable, no backend needed).
  */
 
 const AuthPage = {
   init: () => {
     if (Auth.isAuthenticated()) {
-      const params   = new URLSearchParams(window.location.search);
-      const returnTo = params.get('return') || '/';
+      const returnTo = new URLSearchParams(window.location.search).get('return') || '/';
       window.location.href = returnTo;
       return;
     }
     const params = new URLSearchParams(window.location.search);
     if (params.get('tab') === 'register') AuthPage.showTab('register');
+    if (params.get('tab') === 'forgot')   AuthPage.showTab('forgot');
     AuthPage._bindLogin();
     AuthPage._bindRegister();
+    AuthPage._bindForgot();
   },
 
+  /* ── Tab switching ── */
   showTab: (tab) => {
     document.querySelectorAll('.auth-tab').forEach(el => {
       el.classList.toggle('active', el.id === 'tab-' + tab);
@@ -27,20 +31,27 @@ const AuthPage = {
     AuthPage._clearAlert();
   },
 
-  _showAlert: (msg, type) => {
-    const el = document.getElementById('auth-alert');
+  showForgot: (e) => {
+    e.preventDefault();
+    AuthPage.showTab('forgot');
+  },
+
+  /* ── Alerts ── */
+  _showAlert: (msg, type, targetId) => {
+    const el = document.getElementById(targetId || 'auth-alert');
     if (!el) return;
     el.textContent = msg;
-    el.className = 'auth-alert ' + (type || 'error');
+    el.className   = 'auth-alert ' + (type || 'error');
     el.style.display = 'block';
     el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   },
 
-  _clearAlert: () => {
-    const el = document.getElementById('auth-alert');
+  _clearAlert: (targetId) => {
+    const el = document.getElementById(targetId || 'auth-alert');
     if (el) { el.style.display = 'none'; el.textContent = ''; }
   },
 
+  /* ── Loading state ── */
   _setLoading: (btnId, loading) => {
     const btn = document.getElementById(btnId);
     if (!btn) return;
@@ -51,6 +62,42 @@ const AuthPage = {
     if (spinner) spinner.style.display = loading ? 'inline-block' : 'none';
   },
 
+  /* ── Redirect after auth ── */
+  _redirect: () => {
+    const returnTo = new URLSearchParams(window.location.search).get('return') || '/pages/products.html';
+    window.location.href = returnTo;
+  },
+
+  /* ── Google Sign-In (Firebase only) ── */
+  googleSignIn: async () => {
+    AuthPage._clearAlert();
+    document.querySelectorAll('.btn-google').forEach(b => { b.disabled = true; });
+
+    try {
+      if (typeof FirebaseAuth === 'undefined' || !FirebaseAuth.isAvailable()) {
+        AuthPage._showAlert('Google sign-in is not available right now. Please use email instead.', 'error');
+        return;
+      }
+
+      const result = await FirebaseAuth.signInWithGoogle();
+
+      if (result.cancelled) return;
+
+      if (result.success) {
+        AuthPage._showAlert('Welcome, ' + result.user.firstname + '! Redirecting…', 'success');
+        setTimeout(AuthPage._redirect, 700);
+      } else {
+        AuthPage._showAlert(result.error || 'Google sign-in failed. Please try again.', 'error');
+      }
+    } catch (err) {
+      console.error('[AuthPage] Google sign-in error:', err);
+      AuthPage._showAlert('Google sign-in failed. Please use email login.', 'error');
+    } finally {
+      document.querySelectorAll('.btn-google').forEach(b => { b.disabled = false; });
+    }
+  },
+
+  /* ── Email/Password Login ── */
   _bindLogin: () => {
     const form = document.getElementById('login-form');
     if (!form) return;
@@ -58,28 +105,56 @@ const AuthPage = {
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       AuthPage._clearAlert();
+
       const email    = document.getElementById('login-email').value.trim();
       const password = document.getElementById('login-password').value;
 
-      AuthPage._setLoading('login-btn', true);
-      try {
-        const result = await Auth.login(email, password);
-        if (result.success) {
-          AuthPage._showAlert('Welcome back, ' + result.user.firstname + '! Redirecting…', 'success');
-          const params   = new URLSearchParams(window.location.search);
-          const returnTo = params.get('return') || '/pages/products.html';
-          setTimeout(() => { window.location.href = returnTo; }, 800);
-        } else {
-          AuthPage._showAlert(result.error, 'error');
-        }
-      } catch (err) {
-        AuthPage._showAlert('Something went wrong. Please try again.', 'error');
-      } finally {
-        AuthPage._setLoading('login-btn', false);
+      if (!email || !password) {
+        AuthPage._showAlert('Please enter your email and password.', 'error');
+        return;
       }
+
+      AuthPage._setLoading('login-btn', true);
+
+      // Always use localStorage auth — reliable, no backend/Firebase needed
+      const result = AuthPage._localLogin(email, password);
+
+      if (result.success) {
+        Auth._saveSession(result.user);
+        Auth._emit('loggedIn', result.user);
+        AuthPage._showAlert('Welcome back, ' + result.user.firstname + '! Redirecting…', 'success');
+        setTimeout(AuthPage._redirect, 700);
+      } else {
+        AuthPage._showAlert(result.error, 'error');
+      }
+
+      AuthPage._setLoading('login-btn', false);
     });
   },
 
+  /* ── Pure localStorage login (no async, no network) ── */
+  _localLogin: (email, password) => {
+    try {
+      const raw   = localStorage.getItem('porky_users');
+      const users = raw ? JSON.parse(raw) : [];
+      const match = users.find(u => u.email.toLowerCase() === email.toLowerCase().trim());
+      if (!match) {
+        return { success: false, error: 'No account found with this email. Please create one.' };
+      }
+      const encoded = btoa(unescape(encodeURIComponent(password)));
+      if (match._pw !== encoded) {
+        return { success: false, error: 'Incorrect password. Please try again.' };
+      }
+      const session = { ...match };
+      delete session._pw;
+      return { success: true, user: session };
+    } catch (err) {
+      console.error('[AuthPage] _localLogin error:', err);
+      return { success: false, error: 'Something went wrong. Please try again.' };
+    }
+  },
+
+  /* ── Register ── */
   _bindRegister: () => {
     const form = document.getElementById('register-form');
     if (!form) return;
@@ -99,28 +174,102 @@ const AuthPage = {
       const confirm   = document.getElementById('reg-confirm').value;
       const terms     = document.getElementById('agree-terms').checked;
 
-      if (password !== confirm) { AuthPage._showAlert('Passwords do not match.', 'error'); return; }
-      if (!terms) { AuthPage._showAlert('Please accept the Terms & Conditions to continue.', 'error'); return; }
+      if (!firstname || !lastname || !email || !password) {
+        AuthPage._showAlert('Please fill in all required fields.', 'error'); return;
+      }
+      if (password.length < 8) {
+        AuthPage._showAlert('Password must be at least 8 characters.', 'error'); return;
+      }
+      if (password !== confirm) {
+        AuthPage._showAlert('Passwords do not match.', 'error'); return;
+      }
+      if (!terms) {
+        AuthPage._showAlert('Please accept the Terms & Conditions.', 'error'); return;
+      }
 
       AuthPage._setLoading('register-btn', true);
-      try {
-        const result = await Auth.register({ firstname, lastname, email, phone, password });
-        if (result.success) {
-          AuthPage._showAlert('Account created! Welcome, ' + result.user.firstname + '! Redirecting…', 'success');
-          const params   = new URLSearchParams(window.location.search);
-          const returnTo = params.get('return') || '/pages/products.html';
-          setTimeout(() => { window.location.href = returnTo; }, 800);
-        } else {
-          AuthPage._showAlert(result.error, 'error');
-        }
-      } catch (err) {
-        AuthPage._showAlert('Something went wrong. Please try again.', 'error');
-      } finally {
-        AuthPage._setLoading('register-btn', false);
+
+      // Register in localStorage
+      const result = AuthPage._localRegister({ firstname, lastname, email, phone, password });
+
+      if (result.success) {
+        Auth._saveSession(result.user);
+        Auth._emit('registered', result.user);
+        AuthPage._showAlert('Account created! Welcome, ' + result.user.firstname + '!', 'success');
+        setTimeout(AuthPage._redirect, 700);
+      } else {
+        AuthPage._showAlert(result.error, 'error');
       }
+
+      AuthPage._setLoading('register-btn', false);
     });
   },
 
+  /* ── Pure localStorage register ── */
+  _localRegister: ({ firstname, lastname, email, phone, password }) => {
+    try {
+      const raw   = localStorage.getItem('porky_users');
+      const users = raw ? JSON.parse(raw) : [];
+
+      if (users.find(u => u.email.toLowerCase() === email.toLowerCase().trim())) {
+        return { success: false, error: 'An account with this email already exists. Please sign in.' };
+      }
+
+      const encoded = btoa(unescape(encodeURIComponent(password)));
+      const user = {
+        id:        Date.now(),
+        firstname: firstname.trim(),
+        lastname:  lastname.trim(),
+        name:      firstname.trim() + ' ' + lastname.trim(),
+        email:     email.toLowerCase().trim(),
+        phone:     phone || '',
+        role:      'customer',
+        createdAt: new Date().toISOString(),
+        _pw:       encoded
+      };
+
+      users.push(user);
+      localStorage.setItem('porky_users', JSON.stringify(users));
+
+      const session = { ...user };
+      delete session._pw;
+      return { success: true, user: session };
+    } catch (err) {
+      console.error('[AuthPage] _localRegister error:', err);
+      return { success: false, error: 'Something went wrong. Please try again.' };
+    }
+  },
+
+  /* ── Forgot Password ── */
+  _bindForgot: () => {
+    const form = document.getElementById('forgot-form');
+    if (!form) return;
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      AuthPage._clearAlert('forgot-alert');
+      const email = document.getElementById('forgot-email').value.trim();
+      if (!email) return;
+
+      AuthPage._setLoading('forgot-btn', true);
+
+      try {
+        if (typeof FirebaseAuth !== 'undefined' && FirebaseAuth.isAvailable()) {
+          await FirebaseAuth.sendPasswordReset(email);
+        }
+      } catch (_) { /* silent */ }
+
+      // Always show success — don't reveal if email exists
+      AuthPage._showAlert(
+        'If an account exists for ' + email + ', a reset link has been sent. Check your inbox.',
+        'success', 'forgot-alert'
+      );
+      form.reset();
+      AuthPage._setLoading('forgot-btn', false);
+    });
+  },
+
+  /* ── Password strength indicator ── */
   _updateStrength: (pw) => {
     const bar = document.getElementById('password-strength');
     if (!bar) return;
@@ -136,23 +285,24 @@ const AuthPage = {
       { width: '75%',  color: '#F5A623' },
       { width: '100%', color: '#27AE60' }
     ];
-    const level = levels[score] || levels[0];
-    bar.style.setProperty('--strength-width', level.width);
-    bar.style.setProperty('--strength-color', level.color);
+    const l = levels[score] || levels[0];
+    bar.style.setProperty('--strength-width', l.width);
+    bar.style.setProperty('--strength-color', l.color);
   },
 
+  /* ── Toggle password visibility ── */
   togglePassword: (inputId, btn) => {
     const input = document.getElementById(inputId);
     if (!input) return;
     const isText = input.type === 'text';
-    input.type      = isText ? 'password' : 'text';
-    btn.textContent = isText ? '👁' : '🙈';
+    input.type = isText ? 'password' : 'text';
     btn.setAttribute('aria-label', isText ? 'Show password' : 'Hide password');
-  },
-
-  showForgot: (e) => {
-    e.preventDefault();
-    AuthPage._showAlert('Password reset is not available yet. Please contact us at porkys-admin@porkysmm.com', 'error');
+    const svg = btn.querySelector('svg');
+    if (svg) {
+      svg.innerHTML = isText
+        ? '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>'
+        : '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/>';
+    }
   }
 };
 

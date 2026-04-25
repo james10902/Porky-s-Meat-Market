@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Login — Porky's Meat Market</title>
+  <link rel="stylesheet" href="/css/design-system.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <style>
+    body {
+      background-color: #0d0d0d;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-family-primary);
+    }
+
+    .admin-login-wrap {
+      width: 100%;
+      max-width: 420px;
+      padding: 1.5rem;
+    }
+
+    .admin-login-card {
+      background-color: #161616;
+      border: 1px solid #2a2a2a;
+      border-radius: 16px;
+      padding: 2.5rem 2rem;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.6);
+    }
+
+    .admin-login-logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 2rem;
+    }
+
+    .admin-login-logo img {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid rgba(245,166,35,0.4);
+    }
+
+    .admin-login-logo-text {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .admin-login-logo-name {
+      font-size: 0.875rem;
+      font-weight: 700;
+      color: #f2f2f2;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .admin-login-logo-sub {
+      font-size: 0.7rem;
+      color: var(--color-amber);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .admin-login-card h1 {
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: #f2f2f2;
+      margin-bottom: 0.35rem;
+      letter-spacing: -0.01em;
+    }
+
+    .admin-login-card p {
+      font-size: 0.875rem;
+      color: #777;
+      margin-bottom: 1.75rem;
+    }
+
+    .admin-login-alert {
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      margin-bottom: 1rem;
+      border-left: 3px solid #E74C3C;
+      background: rgba(231,76,60,0.1);
+      color: #E74C3C;
+      display: none;
+    }
+
+    .form-group {
+      margin-bottom: 1.1rem;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #aaa;
+      margin-bottom: 0.4rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .form-group input {
+      width: 100%;
+      background: #202020;
+      border: 1.5px solid #383838;
+      color: #f2f2f2;
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      font-size: 0.9rem;
+      font-family: var(--font-family-primary);
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+      box-sizing: border-box;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: var(--color-amber);
+      box-shadow: 0 0 0 3px rgba(245,166,35,0.12);
+    }
+
+    .form-group input::placeholder { color: #555; }
+
+    .admin-login-btn {
+      width: 100%;
+      background: var(--color-amber);
+      color: #0d0d0d;
+      border: none;
+      border-radius: 8px;
+      padding: 0.85rem 1.5rem;
+      font-family: var(--font-family-primary);
+      font-size: 0.875rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.2s ease, transform 0.15s ease;
+      margin-top: 0.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .admin-login-btn:hover { background: #FFD166; transform: translateY(-1px); }
+    .admin-login-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    .admin-login-btn .spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(0,0,0,0.25);
+      border-top-color: #0d0d0d;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: none;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .admin-back {
+      display: block;
+      text-align: center;
+      margin-top: 1.5rem;
+      font-size: 0.8rem;
+      color: #555;
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+
+    .admin-back:hover { color: #aaa; }
+
+    .admin-back-top {
+      display: inline-block;
+      color: rgba(255,255,255,0.45);
+      font-size: 0.8rem;
+      text-decoration: none;
+      margin-bottom: 1rem;
+      transition: color 0.2s ease;
+      letter-spacing: 0.03em;
+    }
+    .admin-back-top:hover { color: rgba(255,255,255,0.8); }
+
+    .admin-lock-icon {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div class="admin-login-wrap">
+    <a href="/" class="admin-back-top">← Back to site</a>
+    <div class="admin-login-card">
+      <div class="admin-login-logo">
+        <img src="/assets/Images/Porky logo.jpg" alt="Porky's Meat Market">
+        <div class="admin-login-logo-text">
+          <span class="admin-login-logo-name">Porky's Meat Market</span>
+          <span class="admin-login-logo-sub">Admin Portal</span>
+        </div>
+      </div>
+
+      <span class="admin-lock-icon">🔐</span>
+      <h1>Admin Sign In</h1>
+      <p>Enter your admin credentials to access the dashboard.</p>
+
+      <div id="admin-alert" class="admin-login-alert" role="alert"></div>
+
+      <form id="admin-login-form" novalidate>
+        <div class="form-group">
+          <label for="admin-email">Email Address</label>
+          <input type="email" id="admin-email" placeholder="admin@porkysmm.com" autocomplete="email" required>
+        </div>
+        <div class="form-group">
+          <label for="admin-password">Password</label>
+          <input type="password" id="admin-password" placeholder="••••••••" autocomplete="current-password" required>
+        </div>
+        <button type="submit" class="admin-login-btn" id="admin-login-btn">
+          <span id="admin-btn-text">SIGN IN TO ADMIN</span>
+          <span class="spinner" id="admin-spinner"></span>
+        </button>
+      </form>
+
+      <a href="/" class="admin-back">← Back to Porky's Meat Market</a>
+    </div>
+  </div>
+
+  <script src="/js/utils/dom.js"></script>
+  <script src="/js/services/api.js"></script>
+  <script src="/js/modules/theme.js"></script>
+  <script src="/js/modules/auth.js"></script>
+  <script>
+    // If already logged in as admin, redirect
+    document.addEventListener('DOMContentLoaded', () => {
+      if (typeof Auth !== 'undefined') {
+        const user = Auth.getCurrentUser();
+        if (user && user.role === 'admin') {
+          window.location.href = '/pages/admin.html';
+          return;
+        }
+      }
+
+      const form    = document.getElementById('admin-login-form');
+      const alertEl = document.getElementById('admin-alert');
+      const btn     = document.getElementById('admin-login-btn');
+      const btnText = document.getElementById('admin-btn-text');
+      const spinner = document.getElementById('admin-spinner');
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        alertEl.style.display = 'none';
+
+        const email    = document.getElementById('admin-email').value.trim();
+        const password = document.getElementById('admin-password').value;
+
+        if (!email || !password) {
+          alertEl.textContent = 'Please enter your email and password.';
+          alertEl.style.display = 'block';
+          return;
+        }
+
+        btn.disabled = true;
+        btnText.style.display = 'none';
+        spinner.style.display = 'inline-block';
+
+        try {
+          const result = await Auth.login(email, password);
+
+          if (!result.success) {
+            alertEl.textContent = result.error || 'Invalid credentials.';
+            alertEl.style.display = 'block';
+            return;
+          }
+
+          const user = result.user || Auth.getCurrentUser();
+          if (!user || user.role !== 'admin') {
+            Auth.logout();
+            alertEl.textContent = 'Access denied. This account does not have admin privileges.';
+            alertEl.style.display = 'block';
+            return;
+          }
+
+          // Success — redirect to admin panel
+          window.location.href = '/pages/admin.html';
+
+        } catch (err) {
+          alertEl.textContent = 'Something went wrong. Please try again.';
+          alertEl.style.display = 'block';
+        } finally {
+          btn.disabled = false;
+          btnText.style.display = 'inline';
+          spinner.style.display = 'none';
+        }
+      });
+    });
+  </script>
+</body>
+</html>

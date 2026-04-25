@@ -477,7 +477,37 @@
 /* Confirm terms */
 .confirm-terms {
   margin-bottom: var(--spacing-xl);
+  background-color: var(--color-mid-gray);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-lg) var(--spacing-xl);
 }
+
+.confirm-terms .check-label {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-md);
+  cursor: pointer;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+}
+
+.confirm-terms .check-label input[type="checkbox"] {
+  width: 22px;
+  height: 22px;
+  min-width: 22px;
+  margin-top: 1px;
+  accent-color: var(--color-amber);
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.confirm-terms .check-label a {
+  color: var(--color-amber);
+  text-decoration: none;
+}
+.confirm-terms .check-label a:hover { text-decoration: underline; }
 
 /* ---- Order success ---- */
 .order-success {

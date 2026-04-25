@@ -46,6 +46,8 @@ const Dashboard = {
     if (link) DOM.addClass(link, 'active');
     if (tabName === 'orders')  await Dashboard.loadOrders();
     if (tabName === 'history') await Dashboard.loadHistory();
+    // Re-init profile pic every time account tab is shown
+    if (tabName === 'account') Dashboard._setupProfilePic();
   },
 
   /* ── STATUS HELPERS ───────────────────────────────────────────────── */
@@ -97,7 +99,9 @@ const Dashboard = {
     const orderId  = o.order_number || o.id;
     const date     = new Date(o.created_at || o.date).toLocaleDateString('en-NA', { day:'numeric', month:'short', year:'numeric' });
     const total    = 'N$' + parseFloat(o.total || 0).toFixed(2);
-    const canCancel = ['PENDING','CONFIRMED'].includes(o.status);
+    // Cancel only if status allows AND payment has NOT been made
+    const paymentMade = ['PAID', 'REFUNDED'].includes(o.payment_status);
+    const canCancel   = ['PENDING', 'CONFIRMED'].includes(o.status) && !paymentMade;
 
     const thumbs = items.slice(0, 3).map(i =>
       '<img src="' + (i.image_url || i.img || '/assets/Images/Gallery.jpg') + '" alt="' + (i.name||'') + '" class="order-item-thumb" onerror="this.src=\'/assets/Images/Gallery.jpg\'">'
@@ -155,21 +159,66 @@ const Dashboard = {
       return;
     }
 
-    if (resultEl) { resultEl.innerHTML = '<div class="tab-loading"><div class="spinner"></div><span>Looking up order…</span></div>'; resultEl.style.display = 'block'; }
-    if (emptyEl)  emptyEl.style.display = 'none';
-
-    try {
-      const orders = await API.orders.getAll();
-      const match  = orders.find(o => (o.order_number||'').toUpperCase() === query || o.id === query);
-      if (!match) {
-        resultEl.innerHTML = '<div class="tracking-not-found"><p>No order found with reference <strong>' + query + '</strong>.</p><p>Check your confirmation email or <a href="#" onclick="Dashboard.switchTab(\'orders\');return false;">My Orders</a>.</p></div>';
-        return;
-      }
-      const trackData = await API.orders.track(match.id);
-      resultEl.innerHTML = Dashboard._renderTracking(trackData, match);
-    } catch (err) {
-      resultEl.innerHTML = '<div class="tracking-not-found"><p>Could not load tracking. Please try again.</p></div>';
+    if (resultEl) {
+      resultEl.innerHTML = '<div class="tab-loading"><div class="spinner"></div><span>Looking up order…</span></div>';
+      resultEl.style.display = 'block';
     }
+    if (emptyEl) emptyEl.style.display = 'none';
+
+    // Try API first, fall back to localStorage
+    let match = null;
+    try {
+      const apiOrders = await API.orders.getAll();
+      match = apiOrders.find(o =>
+        (o.order_number || '').toUpperCase() === query ||
+        String(o.id).toUpperCase() === query
+      );
+      if (match) {
+        try {
+          const trackData = await API.orders.track(match.id);
+          resultEl.innerHTML = Dashboard._renderTracking(trackData, match);
+          return;
+        } catch (e) { /* fall through to local render */ }
+      }
+    } catch (e) { /* API unavailable */ }
+
+    // Fall back to localStorage
+    if (!match) {
+      const localOrders = Dashboard._getLocalOrders().map(Dashboard._normalise);
+      match = localOrders.find(o =>
+        (o.order_number || '').toUpperCase() === query ||
+        String(o.id).toUpperCase() === query
+      );
+    }
+
+    if (!match) {
+      resultEl.innerHTML = '<div class="tracking-not-found">'
+        + '<p>No order found with reference <strong>' + query + '</strong>.</p>'
+        + '<p>Check your confirmation email or <a href="#" onclick="Dashboard.switchTab(\'orders\');return false;">My Orders</a>.</p>'
+        + '</div>';
+      return;
+    }
+
+    // Generate tracking steps from order status
+    const syntheticTrack = Dashboard._buildTrackingFromStatus(match);
+    resultEl.innerHTML = Dashboard._renderTracking(syntheticTrack, match);
+  },
+
+  /* Build tracking steps from order status when API is unavailable */
+  _buildTrackingFromStatus: (order) => {
+    const statusOrder = ['PENDING', 'CONFIRMED', 'IN_COLD_STORAGE', 'OUT_FOR_DELIVERY', 'DELIVERED'];
+    const currentIdx  = statusOrder.indexOf(order.status);
+    const steps = [
+      { label: 'Order Placed',      key: 'PENDING' },
+      { label: 'Order Confirmed',   key: 'CONFIRMED' },
+      { label: 'In Cold Storage',   key: 'IN_COLD_STORAGE' },
+      { label: 'Out for Delivery',  key: 'OUT_FOR_DELIVERY' },
+      { label: 'Delivered',         key: 'DELIVERED' }
+    ].map((s, i) => ({
+      label:     s.label,
+      completed: order.status === 'CANCELLED' ? false : i <= currentIdx
+    }));
+    return { order, steps };
   },
 
   _renderTracking: (trackData, order) => {
@@ -211,17 +260,20 @@ const Dashboard = {
     if (loading) loading.style.display = 'flex';
     container.innerHTML = '';
 
-    let orders = [];
+    let allOrders = [];
     try {
-      orders = await API.orders.getAll();
+      allOrders = await API.orders.getAll();
     } catch (err) {
-      orders = Dashboard._getLocalOrders().map(Dashboard._normalise);
+      allOrders = Dashboard._getLocalOrders().map(Dashboard._normalise);
     }
 
     if (loading) loading.style.display = 'none';
 
+    // History tab shows ALL orders so users can see everything they've placed
+    const orders = allOrders;
+
     if (!orders.length) {
-      container.innerHTML = '<div class="empty-state"><div class="empty-icon">📋</div><h3>No order history</h3><p>Completed and cancelled orders appear here.</p></div>';
+      container.innerHTML = '<div class="empty-state"><div class="empty-icon">📋</div><h3>No order history yet</h3><p>Your orders will appear here once you place one.</p><a href="/pages/products.html" class="btn btn-quote">Start Shopping</a></div>';
       return;
     }
 
@@ -238,6 +290,11 @@ const Dashboard = {
         + '<td>' + date + '</td>'
         + '<td>' + (o.items||[]).length + '</td>'
         + '<td style="font-weight:600;">N$' + parseFloat(o.total||0).toFixed(2) + '</td>'
+        + '<td><span class="order-status ' + Dashboard._paymentClass(o.payment_status) + '">' + Dashboard._paymentLabel(o.payment_status) + '</span></td>'
+        + '<td><span class="order-status ' + Dashboard._statusClass(o.status) + '">' + Dashboard._statusLabel(o.status) + '</span></td>'
+        + '<td>' + (canDelete ? '<button onclick="Dashboard.deleteOrder(\'' + (o.id||orderId) + '\',\'' + orderId + '\')" class="btn-icon-delete" title="Remove from history">🗑</button>' : '') + '</td>'
+        + '</tr>';
+    });$' + parseFloat(o.total||0).toFixed(2) + '</td>'
         + '<td><span class="order-status ' + Dashboard._paymentClass(o.payment_status) + '">' + Dashboard._paymentLabel(o.payment_status) + '</span></td>'
         + '<td><span class="order-status ' + Dashboard._statusClass(o.status) + '">' + Dashboard._statusLabel(o.status) + '</span></td>'
         + '<td>' + (canDelete ? '<button onclick="Dashboard.deleteOrder(\'' + (o.id||orderId) + '\',\'' + orderId + '\')" class="btn-icon-delete" title="Remove from history">🗑</button>' : '') + '</td>'
@@ -300,6 +357,9 @@ const Dashboard = {
       set('account-phone',     u.phone);
     }
 
+    // Profile picture
+    Dashboard._setupProfilePic();
+
     DOM.on(form, 'submit', async e => {
       e.preventDefault();
       const btn = form.querySelector('[type="submit"]');
@@ -312,8 +372,14 @@ const Dashboard = {
           lastname:  (DOM.byId('account-lastname')  || {}).value || '',
           phone:     (DOM.byId('account-phone')     || {}).value || ''
         };
-        await API.auth.updateProfile(data);
-        // Update local session
+        // Try API, fall back to localStorage session update
+        try {
+          await API.auth.updateProfile(data);
+        } catch (apiErr) {
+          // API unavailable — update session locally only
+          console.warn('Profile API unavailable, saving locally');
+        }
+        // Always update local session
         if (typeof Auth !== 'undefined') {
           const session = Auth.getCurrentUser();
           if (session) {
@@ -329,6 +395,130 @@ const Dashboard = {
         if (btn) { btn.disabled = false; btn.textContent = 'SAVE CHANGES'; }
       }
     });
+  },
+
+  /* ── PROFILE PICTURE ──────────────────────────────────────────────── */
+  _setupProfilePic: () => {
+    const avatarEl  = DOM.byId('profile-pic-avatar');
+    const input     = DOM.byId('profile-pic-input');
+    const editBtn   = DOM.byId('profile-pic-edit-btn');
+    const removeBtn = DOM.byId('profile-pic-remove');
+    if (!avatarEl || !input) return;
+
+    const STORAGE_KEY = 'porky_avatar';
+
+    // ── Load saved avatar ──
+    const _loadAvatar = () => {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          Dashboard._setAvatarImg(avatarEl, saved);
+        } else {
+          const u = Dashboard.currentUser;
+          const initials = ((u?.firstname || '')[0] || '') + ((u?.lastname || '')[0] || '');
+          avatarEl.innerHTML = '';
+          avatarEl.textContent = initials.toUpperCase() || '👤';
+        }
+      } catch (e) {
+        avatarEl.textContent = '👤';
+      }
+    };
+    _loadAvatar();
+
+    // ── Prevent duplicate listeners by cloning the input ──
+    const newInput = input.cloneNode(true);
+    input.parentNode.replaceChild(newInput, input);
+
+    // ── Edit button triggers file picker ──
+    if (editBtn) {
+      const newEditBtn = editBtn.cloneNode(true);
+      editBtn.parentNode.replaceChild(newEditBtn, editBtn);
+      newEditBtn.addEventListener('click', () => newInput.click());
+    }
+
+    // ── Upload button also triggers file picker ──
+    const uploadBtn = document.querySelector('[onclick*="profile-pic-input"]');
+    if (uploadBtn) {
+      uploadBtn.onclick = null;
+      uploadBtn.addEventListener('click', () => newInput.click());
+    }
+
+    // ── File selected ──
+    newInput.addEventListener('change', () => {
+      const file = newInput.files[0];
+      if (!file) return;
+
+      if (file.size > 2 * 1024 * 1024) {
+        Dashboard.showToast('Image must be under 2MB.', 'error');
+        return;
+      }
+
+      if (!file.type.startsWith('image/')) {
+        Dashboard.showToast('Please select an image file.', 'error');
+        return;
+      }
+
+      const reader = new FileReader();
+
+      reader.onload = (evt) => {
+        const dataUrl = evt.target.result;
+        try {
+          localStorage.setItem(STORAGE_KEY, dataUrl);
+        } catch (storageErr) {
+          // localStorage full — try to clear old data and retry
+          try {
+            localStorage.removeItem(STORAGE_KEY);
+            localStorage.setItem(STORAGE_KEY, dataUrl);
+          } catch (e2) {
+            Dashboard.showToast('Storage full. Try a smaller image.', 'error');
+            return;
+          }
+        }
+        Dashboard._setAvatarImg(avatarEl, dataUrl);
+        // Persist to session
+        try {
+          const session = Auth.getCurrentUser();
+          if (session) { session.avatar = dataUrl; Auth._saveSession(session); }
+        } catch (e) {}
+        // Refresh nav profile picture
+        try { Auth.updateNavUI(); } catch (e) {}
+        Dashboard.showToast('Profile photo updated!', 'success');
+      };
+
+      reader.onerror = () => {
+        Dashboard.showToast('Could not read image file.', 'error');
+      };
+
+      reader.readAsDataURL(file);
+    });
+
+    // ── Remove photo ──
+    if (removeBtn) {
+      const newRemoveBtn = removeBtn.cloneNode(true);
+      removeBtn.parentNode.replaceChild(newRemoveBtn, removeBtn);
+      newRemoveBtn.addEventListener('click', () => {
+        try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
+        const u = Dashboard.currentUser;
+        const initials = ((u?.firstname || '')[0] || '') + ((u?.lastname || '')[0] || '');
+        avatarEl.innerHTML = '';
+        avatarEl.textContent = initials.toUpperCase() || '👤';
+        try {
+          const session = Auth.getCurrentUser();
+          if (session) { delete session.avatar; Auth._saveSession(session); }
+        } catch (e) {}
+        try { Auth.updateNavUI(); } catch (e) {}
+        Dashboard.showToast('Profile photo removed.', 'success');
+      });
+    }
+  },
+
+  _setAvatarImg: (el, src) => {
+    el.innerHTML = '';
+    const img = document.createElement('img');
+    img.src = src;
+    img.alt = 'Profile photo';
+    img.onerror = () => { el.textContent = '👤'; };
+    el.appendChild(img);
   },
 
   _setupLogout: () => {

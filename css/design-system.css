@@ -231,3 +231,8 @@ button {
   background-color: rgba(245, 166, 35, 0.08);
   border-color: var(--color-amber);
 }
+
+.theme-toggle-btn.theme-system {
+  background-color: rgba(41, 128, 185, 0.08);
+  border-color: #2980B9;
+}
