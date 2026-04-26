@@ -229,10 +229,19 @@ const Auth = {
       }
 
       // Customer pages: full dropdown, no admin link
-      const savedAvatar = (() => { try { return localStorage.getItem('porky_avatar'); } catch(e) { return null; } })();
+      const savedAvatar = (() => {
+        try {
+          // Use Google profile photo if signed in with Google, else saved upload
+          return user.avatar || localStorage.getItem('porky_avatar');
+        } catch(e) { return null; }
+      })();
       const avatarHtml = savedAvatar
-        ? `<img src="${savedAvatar}" alt="${user.firstname}" style="width:28px;height:28px;border-radius:50%;object-fit:cover;">`
+        ? `<img src="${savedAvatar}" alt="${user.firstname}" style="width:28px;height:28px;border-radius:50%;object-fit:cover;border:2px solid rgba(245,166,35,0.4);">`
         : `<span class="nav-profile-avatar">${initials}</span>`;
+
+      const dropdownAvatarHtml = savedAvatar
+        ? `<img src="${savedAvatar}" alt="${user.firstname}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;border:2px solid rgba(245,166,35,0.4);flex-shrink:0;">`
+        : `<span class="nav-profile-avatar" style="width:40px;height:40px;font-size:1rem;">${initials}</span>`;
 
       const profile = document.createElement('div');
       profile.className = 'nav-profile';
@@ -245,9 +254,12 @@ const Auth = {
           <svg class="nav-profile-caret" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
         <div class="nav-profile-dropdown">
-          <div class="nav-profile-info">
-            <span class="nav-profile-info-name">${user.firstname} ${user.lastname}</span>
-            <span class="nav-profile-info-email">${user.email}</span>
+          <div class="nav-profile-info" style="display:flex;align-items:center;gap:0.75rem;">
+            ${dropdownAvatarHtml}
+            <div>
+              <span class="nav-profile-info-name">${user.firstname} ${user.lastname}</span>
+              <span class="nav-profile-info-email">${user.email}</span>
+            </div>
           </div>
           <a href="/pages/dashboard.html" class="nav-profile-item">📦 My Orders</a>
           <a href="/pages/dashboard.html#account" class="nav-profile-item">⚙️ Account Settings</a>
