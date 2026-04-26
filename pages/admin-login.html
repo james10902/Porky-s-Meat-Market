@@ -265,10 +265,6 @@
             <label for="setup-confirm">Confirm Password</label>
             <input type="password" id="setup-confirm" placeholder="Repeat password" required>
           </div>
-          <div class="form-group">
-            <label for="setup-secret">Setup Key</label>
-            <input type="password" id="setup-secret" placeholder="Enter setup key" required>
-          </div>
           <button type="submit" class="admin-login-btn" style="margin-top:0.25rem;">
             CREATE ADMIN ACCOUNT
           </button>
@@ -323,7 +319,6 @@
         const email     = document.getElementById('setup-email').value.trim();
         const password  = document.getElementById('setup-password').value;
         const confirm   = document.getElementById('setup-confirm').value;
-        const secret    = document.getElementById('setup-secret').value.trim();
 
         if (!firstname || !lastname || !email || !password) {
           setupAlert.textContent = 'Please fill in all fields.';
@@ -337,11 +332,6 @@
         }
         if (password !== confirm) {
           setupAlert.textContent = 'Passwords do not match.';
-          setupAlert.style.display = 'block';
-          return;
-        }
-        if (secret !== 'PORKYS2025') {
-          setupAlert.textContent = 'Incorrect setup key. Contact the site owner.';
           setupAlert.style.display = 'block';
           return;
         }
