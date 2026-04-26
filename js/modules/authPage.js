@@ -137,14 +137,20 @@ const AuthPage = {
 
       AuthPage._setLoading('login-btn', true);
 
-      // Always use localStorage auth — reliable, no backend/Firebase needed
       const result = AuthPage._localLogin(email, password);
 
       if (result.success) {
-        Auth._saveSession(result.user);
-        Auth._emit('loggedIn', result.user);
-        AuthPage._showAlert('Welcome back, ' + result.user.firstname + '! Redirecting…', 'success');
-        setTimeout(AuthPage._redirect, 700);
+        // Admin gets saved to admin session key and redirected to admin panel
+        if (result.user.role === 'admin') {
+          localStorage.setItem('porky_admin_session', JSON.stringify(result.user));
+          AuthPage._showAlert('Welcome, ' + result.user.firstname + '! Redirecting to admin…', 'success');
+          setTimeout(() => { window.location.href = '/pages/admin.html'; }, 700);
+        } else {
+          Auth._saveSession(result.user);
+          Auth._emit('loggedIn', result.user);
+          AuthPage._showAlert('Welcome back, ' + result.user.firstname + '! Redirecting…', 'success');
+          setTimeout(AuthPage._redirect, 700);
+        }
       } else {
         AuthPage._showAlert(result.error, 'error');
       }
@@ -270,23 +276,111 @@ const AuthPage = {
       e.preventDefault();
       AuthPage._clearAlert('forgot-alert');
       const email = document.getElementById('forgot-email').value.trim();
-      if (!email) return;
+      if (!email) {
+        AuthPage._showAlert('Please enter your email address.', 'error', 'forgot-alert');
+        return;
+      }
 
       AuthPage._setLoading('forgot-btn', true);
 
+      // Check if account exists in localStorage
+      const users = (() => { try { return JSON.parse(localStorage.getItem('porky_users') || '[]'); } catch { return []; } })();
+      const user  = users.find(u => u.email.toLowerCase() === email.toLowerCase().trim());
+
+      if (!user) {
+        // Don't reveal if email exists — show generic message
+        AuthPage._showAlert('If an account exists for ' + email + ', a reset link has been sent.', 'success', 'forgot-alert');
+        AuthPage._setLoading('forgot-btn', false);
+        form.reset();
+        return;
+      }
+
+      // Try Firebase password reset if available
+      let firebaseSent = false;
       try {
         if (typeof FirebaseAuth !== 'undefined' && FirebaseAuth.isAvailable()) {
           await FirebaseAuth.sendPasswordReset(email);
+          firebaseSent = true;
         }
-      } catch (_) { /* silent */ }
+      } catch (_) {}
 
-      // Always show success — don't reveal if email exists
-      AuthPage._showAlert(
-        'If an account exists for ' + email + ', a reset link has been sent. Check your inbox.',
-        'success', 'forgot-alert'
-      );
+      if (firebaseSent) {
+        AuthPage._showAlert('Password reset email sent to ' + email + '. Check your inbox.', 'success', 'forgot-alert');
+      } else {
+        // Firebase not available — show inline reset form
+        AuthPage._showInlineReset(email, user);
+      }
+
       form.reset();
       AuthPage._setLoading('forgot-btn', false);
+    });
+  },
+
+  /* ── Inline password reset (when Firebase is unavailable) ── */
+  _showInlineReset: (email, user) => {
+    const container = document.getElementById('forgot-form').parentElement;
+
+    // Remove any existing reset form
+    const existing = document.getElementById('inline-reset-form');
+    if (existing) existing.remove();
+
+    const div = document.createElement('div');
+    div.id = 'inline-reset-form';
+    div.style.cssText = 'margin-top:1rem;padding-top:1rem;border-top:1px solid rgba(255,255,255,0.1);';
+    div.innerHTML = `
+      <p style="font-size:0.85rem;color:var(--color-text-secondary);margin-bottom:1rem;">
+        Set a new password for <strong>${email}</strong>:
+      </p>
+      <div class="form-group">
+        <label for="reset-new-pw">New Password</label>
+        <div class="input-password-wrap">
+          <input type="password" id="reset-new-pw" placeholder="Min. 8 characters" minlength="8" style="width:100%;">
+          <button type="button" class="toggle-password" onclick="AuthPage.togglePassword('reset-new-pw', this)" aria-label="Show password">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="reset-confirm-pw">Confirm Password</label>
+        <input type="password" id="reset-confirm-pw" placeholder="Repeat password" style="width:100%;">
+      </div>
+      <div id="reset-msg" style="display:none;font-size:0.85rem;margin-bottom:0.75rem;"></div>
+      <button type="button" class="btn btn-quote btn-lg" id="reset-submit-btn" style="width:100%;">
+        <span class="btn-text">SET NEW PASSWORD</span>
+        <span class="btn-spinner" style="display:none;"></span>
+      </button>
+    `;
+    container.appendChild(div);
+
+    document.getElementById('reset-submit-btn').addEventListener('click', () => {
+      const newPw  = document.getElementById('reset-new-pw').value;
+      const confPw = document.getElementById('reset-confirm-pw').value;
+      const msgEl  = document.getElementById('reset-msg');
+
+      const showMsg = (txt, ok) => {
+        msgEl.textContent = txt;
+        msgEl.style.color = ok ? 'var(--color-success)' : 'var(--color-error)';
+        msgEl.style.display = 'block';
+      };
+
+      if (newPw.length < 8) { showMsg('Password must be at least 8 characters.', false); return; }
+      if (newPw !== confPw)  { showMsg('Passwords do not match.', false); return; }
+
+      try {
+        const users = JSON.parse(localStorage.getItem('porky_users') || '[]');
+        const idx   = users.findIndex(u => u.email.toLowerCase() === email.toLowerCase());
+        if (idx !== -1) {
+          users[idx]._pw = btoa(unescape(encodeURIComponent(newPw)));
+          localStorage.setItem('porky_users', JSON.stringify(users));
+          showMsg('✅ Password updated! You can now sign in.', true);
+          setTimeout(() => {
+            div.remove();
+            AuthPage.showTab('login');
+          }, 1500);
+        }
+      } catch (err) {
+        showMsg('Something went wrong. Please try again.', false);
+      }
     });
   },
 
