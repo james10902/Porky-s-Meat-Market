@@ -236,11 +236,11 @@ const Auth = {
         } catch(e) { return null; }
       })();
       const avatarHtml = savedAvatar
-        ? `<img src="${savedAvatar}" alt="${user.firstname}" style="width:28px;height:28px;border-radius:50%;object-fit:cover;border:2px solid rgba(245,166,35,0.4);">`
+        ? `<img src="${savedAvatar}" alt="${user.firstname}" style="width:28px;height:28px;border-radius:50%;object-fit:cover;border:2px solid rgba(245,166,35,0.4);" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><span class="nav-profile-avatar" style="display:none;">${initials}</span>`
         : `<span class="nav-profile-avatar">${initials}</span>`;
 
       const dropdownAvatarHtml = savedAvatar
-        ? `<img src="${savedAvatar}" alt="${user.firstname}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;border:2px solid rgba(245,166,35,0.4);flex-shrink:0;">`
+        ? `<img src="${savedAvatar}" alt="${user.firstname}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;border:2px solid rgba(245,166,35,0.4);flex-shrink:0;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><span class="nav-profile-avatar" style="display:none;width:40px;height:40px;font-size:1rem;">${initials}</span>`
         : `<span class="nav-profile-avatar" style="width:40px;height:40px;font-size:1rem;">${initials}</span>`;
 
       const profile = document.createElement('div');
