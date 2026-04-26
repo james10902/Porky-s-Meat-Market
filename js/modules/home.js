@@ -165,3 +165,89 @@ if (document.readyState === 'loading') {
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = Home;
 }
+
+/* ── Market Status Widget ── */
+const MarketStatus = {
+  // Hours in Namibia/Windhoek time (UTC+2)
+  schedule: {
+    1: { open: '07:00', close: '15:30' }, // Mon
+    2: { open: '07:00', close: '15:30' }, // Tue
+    3: { open: '07:00', close: '15:30' }, // Wed
+    4: { open: '07:00', close: '15:30' }, // Thu
+    5: { open: '07:00', close: '15:30' }, // Fri
+    6: { open: '08:00', close: '12:00' }, // Sat
+    0: null                                // Sun — closed
+  },
+
+  init: () => {
+    const bar     = document.getElementById('market-status-bar');
+    const dot     = document.getElementById('market-status-dot');
+    const text    = document.getElementById('market-status-text');
+    const hours   = document.getElementById('market-status-hours');
+    if (!bar) return;
+
+    const update = () => {
+      // Get current Windhoek time (UTC+2)
+      const now     = new Date();
+      const utc     = now.getTime() + now.getTimezoneOffset() * 60000;
+      const wdh     = new Date(utc + 2 * 3600000);
+      const day     = wdh.getDay();
+      const hhmm    = wdh.getHours() * 100 + wdh.getMinutes();
+      const today   = MarketStatus.schedule[day];
+
+      if (!today) {
+        // Sunday
+        dot.className   = 'market-status-dot closed';
+        text.className  = 'market-status-text closed';
+        text.textContent = 'CLOSED TODAY';
+        hours.textContent = '· Opens Monday at 7:00 AM';
+        return;
+      }
+
+      const openNum  = parseInt(today.open.replace(':', ''), 10);
+      const closeNum = parseInt(today.close.replace(':', ''), 10);
+      const isOpen   = hhmm >= openNum && hhmm < closeNum;
+
+      if (isOpen) {
+        dot.className   = 'market-status-dot open';
+        text.className  = 'market-status-text open';
+        text.textContent = 'OPEN NOW';
+        hours.textContent = '· Closes at ' + MarketStatus._fmt(today.close);
+      } else if (hhmm < openNum) {
+        dot.className   = 'market-status-dot closed';
+        text.className  = 'market-status-text closed';
+        text.textContent = 'CLOSED';
+        hours.textContent = '· Opens today at ' + MarketStatus._fmt(today.open);
+      } else {
+        dot.className   = 'market-status-dot closed';
+        text.className  = 'market-status-text closed';
+        text.textContent = 'CLOSED';
+        const nextDay = MarketStatus._nextOpenDay(day);
+        hours.textContent = '· ' + nextDay;
+      }
+    };
+
+    update();
+    setInterval(update, 60000); // refresh every minute
+  },
+
+  _fmt: (hhmm) => {
+    const [h, m] = hhmm.split(':');
+    const hr = parseInt(h, 10);
+    const ampm = hr >= 12 ? 'PM' : 'AM';
+    const hr12 = hr > 12 ? hr - 12 : hr === 0 ? 12 : hr;
+    return hr12 + ':' + m + ' ' + ampm;
+  },
+
+  _nextOpenDay: (currentDay) => {
+    const names = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    for (let i = 1; i <= 7; i++) {
+      const next = (currentDay + i) % 7;
+      const s = MarketStatus.schedule[next];
+      if (s) return 'Opens ' + names[next] + ' at ' + MarketStatus._fmt(s.open);
+    }
+    return 'Reopens Monday';
+  }
+};
+
+document.addEventListener('DOMContentLoaded', () => MarketStatus.init());

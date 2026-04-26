@@ -167,12 +167,12 @@ footer {
 }
 
 .footer-contact-text a {
-  color: #888;
+  color: var(--color-amber);
   text-decoration: none;
   transition: color 0.2s ease;
 }
 
-.footer-contact-text a:hover { color: #ddd; }
+.footer-contact-text a:hover { color: #FFD166; text-decoration: underline; }
 
 /* ── Branches row ── */
 .footer-branches {

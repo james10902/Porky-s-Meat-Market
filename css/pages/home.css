@@ -583,3 +583,42 @@
   .track-order-actions { width: 100%; flex-direction: column; }
   .track-order-actions .btn { width: 100%; text-align: center; }
 }
+
+/* ── Market Status Bar ── */
+.market-status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  padding: 0.6rem 1.5rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-dark-gray);
+}
+
+.market-status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  animation: pulse-dot 2s infinite;
+}
+
+.market-status-dot.open  { background: #27AE60; box-shadow: 0 0 0 0 rgba(39,174,96,0.4); }
+.market-status-dot.closed { background: #E74C3C; box-shadow: 0 0 0 0 rgba(231,76,60,0.4); animation: none; }
+
+@keyframes pulse-dot {
+  0%   { box-shadow: 0 0 0 0 rgba(39,174,96,0.5); }
+  70%  { box-shadow: 0 0 0 7px rgba(39,174,96,0); }
+  100% { box-shadow: 0 0 0 0 rgba(39,174,96,0); }
+}
+
+.market-status-text.open  { color: #27AE60; }
+.market-status-text.closed { color: #E74C3C; }
+
+.market-status-hours {
+  color: var(--color-text-muted);
+  font-weight: 400;
+}
