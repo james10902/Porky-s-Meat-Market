@@ -5,7 +5,7 @@
  */
 
 const API = {
-  // For Netlify Functions deployment
+  // Works on both Netlify and Vercel — /api routes to serverless functions
   baseURL: '/api',
 
   // JWT token (loaded from localStorage on init)
