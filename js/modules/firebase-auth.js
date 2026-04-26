@@ -9,13 +9,13 @@
  */
 
 const FIREBASE_CONFIG = {
-  apiKey:            "AIzaSyDx-EFaGG1pZRTON3Nsd8G4END47-X1k9w",
-  authDomain:        "porky-s-1c369.firebaseapp.com",
-  projectId:         "porky-s-1c369",
-  storageBucket:     "porky-s-1c369.firebasestorage.app",
-  messagingSenderId: "162763180987",
-  appId:             "1:162763180987:web:c746d71954b4c0cc6a929e",
-  measurementId:     "G-8Q6379YQL0"
+  apiKey:            "AIzaSyDDGj-v8Q-qtUNcuTJYzBuvYpIQyrHceQ0",
+  authDomain:        "porky-s-meat-market.firebaseapp.com",
+  projectId:         "porky-s-meat-market",
+  storageBucket:     "porky-s-meat-market.firebasestorage.app",
+  messagingSenderId: "69806202604",
+  appId:             "1:69806202604:web:9daf2c54f060baaa048fc9",
+  measurementId:     "G-5ZJ2W5LZK1"
 };
 
 const FirebaseAuth = {
