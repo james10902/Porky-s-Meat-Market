@@ -65,10 +65,10 @@ const Home = {
       // Fallback mock data
       if (!featured) {
         featured = [
-          { id: 1,  name: 'Beef mince',  price: 85.99, unit: 'per kg', image_url: '/assets/Images/Beef mince.jpg', category: 'Beef' },
-          { id: 13, name: 'Pork Shoulder Chops', price: 89.99,  unit: 'per kg', image_url: '/assets/Images/Pork Shoulder Chops.jpg',      category: 'Pork' },
-          { id: 12, name: 'Game Stew',           price: 149.99, unit: 'per kg', image_url: '/assets/Images/Game stew.jpg',                category: 'Game' },
-          { id: 11, name: 'Droewors',            price: 189.99, unit: 'per kg', image_url: '/assets/Images/Droewors.jpg',                 category: 'Processed' }
+          { id: 1,  name: 'Beef mince',         price: 85.99,  unit: 'per kg', image_url: '/assets/Images/Beef mince.jpg',         category: 'Beef' },
+          { id: 13, name: 'Pork Shoulder Chops', price: 89.99,  unit: 'per kg', image_url: '/assets/Images/Pork Shoulder chops.jpg', category: 'Pork' },
+          { id: 12, name: 'Game Stew',           price: 149.99, unit: 'per kg', image_url: '/assets/Images/Game stew.jpg',           category: 'Game' },
+          { id: 11, name: 'Droëwors',            price: 189.99, unit: 'per kg', image_url: '/assets/Images/Droewors.jpg',            category: 'Processed' }
         ];
       }
 
