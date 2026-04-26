@@ -97,7 +97,7 @@ const Products = {
         price: 49.99,
         unit: 'per kg',
         category: 'processed',
-        image_url: '/assets/Images/Mini Polony.jpg',
+        image_url: '/assets/Images/Mini polony.jpg',
         description: 'Convenient mini polony portions for everyday use.'
       },
       {
@@ -178,7 +178,7 @@ const Products = {
         price: 89.99,
         unit: 'per kg',
         category: 'pork',
-        image_url: '/assets/Images/Pork Shoulder Chops.jpg',
+        image_url: '/assets/Images/Pork Shoulder chops.jpg',
         description: 'Thick-cut pork shoulder chops, great for braai or pan-fry.'
       },
       {
