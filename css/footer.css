@@ -170,9 +170,13 @@ footer {
   color: var(--color-amber);
   text-decoration: none;
   transition: color 0.2s ease;
+  cursor: pointer;
 }
 
-.footer-contact-text a:hover { color: #FFD166; text-decoration: underline; }
+.footer-contact-text a:hover {
+  color: #FFD166;
+  text-decoration: underline;
+}
 
 /* ── Branches row ── */
 .footer-branches {
