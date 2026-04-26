@@ -5,355 +5,302 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Login — Porky's Meat Market</title>
   <link rel="stylesheet" href="/css/design-system.css">
-  <link rel="stylesheet" href="/css/components.css">
   <style>
+    *, *::before, *::after { box-sizing: border-box; }
     body {
-      background-color: #0d0d0d;
+      background: #0d0d0d;
       min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-family: var(--font-family-primary);
-    }
-
-    .admin-login-wrap {
-      width: 100%;
-      max-width: 420px;
+      font-family: var(--font-family-primary, 'Inter', sans-serif);
       padding: 1.5rem;
     }
-
-    .admin-login-card {
-      background-color: #161616;
+    .wrap { width: 100%; max-width: 440px; }
+    .back-top { display:inline-block; color:rgba(255,255,255,0.4); font-size:0.8rem; text-decoration:none; margin-bottom:1rem; }
+    .back-top:hover { color:rgba(255,255,255,0.8); }
+    .card {
+      background: #161616;
       border: 1px solid #2a2a2a;
       border-radius: 16px;
       padding: 2.5rem 2rem;
       box-shadow: 0 24px 60px rgba(0,0,0,0.6);
     }
+    .logo-row { display:flex; align-items:center; gap:0.75rem; margin-bottom:2rem; }
+    .logo-row img { width:44px; height:44px; border-radius:50%; object-fit:cover; border:2px solid rgba(245,166,35,0.4); }
+    .logo-name { font-size:0.875rem; font-weight:700; color:#f2f2f2; letter-spacing:0.04em; text-transform:uppercase; display:block; }
+    .logo-sub  { font-size:0.7rem; color:#F5A623; letter-spacing:0.1em; text-transform:uppercase; display:block; }
+    .lock { font-size:2.5rem; display:block; margin-bottom:1rem; }
+    h1 { font-size:1.5rem; font-weight:900; color:#f2f2f2; margin:0 0 0.35rem; }
+    .subtitle { font-size:0.875rem; color:#777; margin:0 0 1.5rem; }
 
-    .admin-login-logo {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      margin-bottom: 2rem;
+    /* Tabs */
+    .tabs { display:flex; border-bottom:1px solid #2a2a2a; margin-bottom:1.5rem; }
+    .tab-btn {
+      flex:1; background:none; border:none; padding:0.75rem; font-size:0.85rem; font-weight:600;
+      color:#555; cursor:pointer; border-bottom:2px solid transparent; transition:all 0.2s;
+      font-family:inherit; letter-spacing:0.04em; text-transform:uppercase;
     }
+    .tab-btn.active { color:#F5A623; border-bottom-color:#F5A623; }
 
-    .admin-login-logo img {
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 2px solid rgba(245,166,35,0.4);
+    /* Panels */
+    .panel { display:none; }
+    .panel.active { display:block; }
+
+    /* Alert */
+    .alert {
+      padding:0.75rem 1rem; border-radius:8px; font-size:0.875rem; margin-bottom:1rem;
+      border-left:3px solid #E74C3C; background:rgba(231,76,60,0.1); color:#E74C3C; display:none;
     }
+    .alert.success { border-color:#27AE60; background:rgba(39,174,96,0.1); color:#27AE60; }
 
-    .admin-login-logo-text {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .admin-login-logo-name {
-      font-size: 0.875rem;
-      font-weight: 700;
-      color: #f2f2f2;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-    }
-
-    .admin-login-logo-sub {
-      font-size: 0.7rem;
-      color: var(--color-amber);
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-    }
-
-    .admin-login-card h1 {
-      font-size: 1.5rem;
-      font-weight: 900;
-      color: #f2f2f2;
-      margin-bottom: 0.35rem;
-      letter-spacing: -0.01em;
-    }
-
-    .admin-login-card p {
-      font-size: 0.875rem;
-      color: #777;
-      margin-bottom: 1.75rem;
-    }
-
-    .admin-login-alert {
-      padding: 0.75rem 1rem;
-      border-radius: 8px;
-      font-size: 0.875rem;
-      margin-bottom: 1rem;
-      border-left: 3px solid #E74C3C;
-      background: rgba(231,76,60,0.1);
-      color: #E74C3C;
-      display: none;
-    }
-
-    .form-group {
-      margin-bottom: 1.1rem;
-    }
-
-    .form-group label {
-      display: block;
-      font-size: 0.8rem;
-      font-weight: 600;
-      color: #aaa;
-      margin-bottom: 0.4rem;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-    }
-
+    /* Form */
+    .form-group { margin-bottom:1.1rem; }
+    .form-group label { display:block; font-size:0.8rem; font-weight:600; color:#aaa; margin-bottom:0.4rem; letter-spacing:0.04em; text-transform:uppercase; }
     .form-group input {
-      width: 100%;
-      background: #202020;
-      border: 1.5px solid #383838;
-      color: #f2f2f2;
-      border-radius: 8px;
-      padding: 0.75rem 1rem;
-      font-size: 0.9rem;
-      font-family: var(--font-family-primary);
-      transition: border-color 0.2s ease, box-shadow 0.2s ease;
-      box-sizing: border-box;
+      width:100%; background:#202020; border:1.5px solid #383838; color:#f2f2f2;
+      border-radius:8px; padding:0.75rem 1rem; font-size:0.9rem; font-family:inherit;
+      transition:border-color 0.2s, box-shadow 0.2s;
     }
+    .form-group input:focus { outline:none; border-color:#F5A623; box-shadow:0 0 0 3px rgba(245,166,35,0.12); }
+    .form-group input::placeholder { color:#555; }
+    .form-row { display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; }
 
-    .form-group input:focus {
-      outline: none;
-      border-color: var(--color-amber);
-      box-shadow: 0 0 0 3px rgba(245,166,35,0.12);
+    /* Submit button */
+    .submit-btn {
+      width:100%; background:#F5A623; color:#0d0d0d; border:none; border-radius:8px;
+      padding:0.85rem 1.5rem; font-family:inherit; font-size:0.875rem; font-weight:700;
+      letter-spacing:0.08em; text-transform:uppercase; cursor:pointer;
+      transition:background 0.2s, transform 0.15s; margin-top:0.5rem;
+      display:flex; align-items:center; justify-content:center; gap:0.5rem;
     }
-
-    .form-group input::placeholder { color: #555; }
-
-    .admin-login-btn {
-      width: 100%;
-      background: var(--color-amber);
-      color: #0d0d0d;
-      border: none;
-      border-radius: 8px;
-      padding: 0.85rem 1.5rem;
-      font-family: var(--font-family-primary);
-      font-size: 0.875rem;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      cursor: pointer;
-      transition: background 0.2s ease, transform 0.15s ease;
-      margin-top: 0.5rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
+    .submit-btn:hover { background:#FFD166; transform:translateY(-1px); }
+    .submit-btn:disabled { opacity:0.5; cursor:not-allowed; transform:none; }
+    .spinner {
+      width:16px; height:16px; border:2px solid rgba(0,0,0,0.25); border-top-color:#0d0d0d;
+      border-radius:50%; animation:spin 0.7s linear infinite; display:none;
     }
+    @keyframes spin { to { transform:rotate(360deg); } }
 
-    .admin-login-btn:hover { background: #FFD166; transform: translateY(-1px); }
-    .admin-login-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-
-    .admin-login-btn .spinner {
-      width: 16px;
-      height: 16px;
-      border: 2px solid rgba(0,0,0,0.25);
-      border-top-color: #0d0d0d;
-      border-radius: 50%;
-      animation: spin 0.7s linear infinite;
-      display: none;
-    }
-
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    .admin-back {
-      display: block;
-      text-align: center;
-      margin-top: 1.5rem;
-      font-size: 0.8rem;
-      color: #555;
-      text-decoration: none;
-      transition: color 0.2s ease;
-    }
-
-    .admin-back:hover { color: #aaa; }
-
-    .admin-back-top {
-      display: inline-block;
-      color: rgba(255,255,255,0.45);
-      font-size: 0.8rem;
-      text-decoration: none;
-      margin-bottom: 1rem;
-      transition: color 0.2s ease;
-      letter-spacing: 0.03em;
-    }
-    .admin-back-top:hover { color: rgba(255,255,255,0.8); }
-
-    .admin-lock-icon {
-      font-size: 2.5rem;
-      margin-bottom: 1rem;
-      display: block;
-    }
+    .card-footer { text-align:center; margin-top:1.5rem; }
+    .card-footer a { font-size:0.8rem; color:#555; text-decoration:none; }
+    .card-footer a:hover { color:#aaa; }
   </style>
 </head>
 <body>
-  <div class="admin-login-wrap">
-    <a href="/" class="admin-back-top">← Back to site</a>
-    <div class="admin-login-card">
-      <div class="admin-login-logo">
+  <div class="wrap">
+    <a href="/" class="back-top">← Back to site</a>
+    <div class="card">
+
+      <div class="logo-row">
         <img src="/assets/Images/Porky logo.jpg" alt="Porky's Meat Market">
-        <div class="admin-login-logo-text">
-          <span class="admin-login-logo-name">Porky's Meat Market</span>
-          <span class="admin-login-logo-sub">Admin Portal</span>
+        <div>
+          <span class="logo-name">Porky's Meat Market</span>
+          <span class="logo-sub">Admin Portal</span>
         </div>
       </div>
 
-      <span class="admin-lock-icon">🔐</span>
-      <h1>Admin Sign In</h1>
-      <p>Enter your admin credentials to access the dashboard.</p>
+      <span class="lock">🔐</span>
+      <h1>Admin Portal</h1>
+      <p class="subtitle">Sign in or create your admin account.</p>
 
-      <div id="admin-alert" class="admin-login-alert" role="alert"></div>
-
-      <form id="admin-login-form" novalidate>
-        <div class="form-group">
-          <label for="admin-email">Email Address</label>
-          <input type="email" id="admin-email" placeholder="admin@porkysmm.com" autocomplete="email" required>
-        </div>
-        <div class="form-group">
-          <label for="admin-password">Password</label>
-          <input type="password" id="admin-password" placeholder="••••••••" autocomplete="current-password" required>
-        </div>
-        <button type="submit" class="admin-login-btn" id="admin-login-btn">
-          <span id="admin-btn-text">SIGN IN TO ADMIN</span>
-          <span class="spinner" id="admin-spinner"></span>
-        </button>
-      </form>
-
-      <a href="/" class="admin-back">← Back to Porky's Meat Market</a>
-      <div style="text-align:center;margin-top:0.75rem;">
-        <a href="/pages/admin-login.html?force=1" style="font-size:0.75rem;color:#444;text-decoration:none;">Sign in as different account</a>
+      <!-- Tabs -->
+      <div class="tabs">
+        <button class="tab-btn active" id="tab-signin" onclick="switchTab('signin')">Sign In</button>
+        <button class="tab-btn" id="tab-create" onclick="switchTab('create')">Create Account</button>
       </div>
 
-      <!-- First-time setup -->
-      <div style="text-align:center;margin-top:1.25rem;">
-        <a href="#" id="setup-link" style="font-size:0.75rem;color:#444;text-decoration:none;transition:color 0.2s;">
-          First time? Create admin account →
-        </a>
-      </div>
-
-      <div id="setup-box" style="display:none;margin-top:1.5rem;padding-top:1.5rem;border-top:1px solid #2a2a2a;">
-        <h2 style="font-size:1rem;font-weight:700;color:#f2f2f2;margin-bottom:0.25rem;">Create Admin Account</h2>
-        <p style="font-size:0.8rem;color:#666;margin-bottom:1.25rem;">One-time setup. Creates the owner admin account.</p>
-
-        <div id="setup-alert" class="admin-login-alert" role="alert"></div>
-
-        <form id="setup-form" novalidate>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
-            <div class="form-group">
-              <label for="setup-firstname">First Name</label>
-              <input type="text" id="setup-firstname" placeholder="John" required>
-            </div>
-            <div class="form-group">
-              <label for="setup-lastname">Last Name</label>
-              <input type="text" id="setup-lastname" placeholder="Smith" required>
-            </div>
+      <!-- ── SIGN IN PANEL ── -->
+      <div class="panel active" id="panel-signin">
+        <div class="alert" id="signin-alert"></div>
+        <form id="signin-form" novalidate>
+          <div class="form-group">
+            <label for="signin-email">Email Address</label>
+            <input type="email" id="signin-email" placeholder="admin@porkysmm.com" autocomplete="email" required>
           </div>
           <div class="form-group">
-            <label for="setup-email">Email Address</label>
-            <input type="email" id="setup-email" placeholder="admin@porkysmm.com" required>
+            <label for="signin-password">Password</label>
+            <input type="password" id="signin-password" placeholder="••••••••" autocomplete="current-password" required>
           </div>
-          <div class="form-group">
-            <label for="setup-password">Password</label>
-            <input type="password" id="setup-password" placeholder="Min. 8 characters" required minlength="8">
-          </div>
-          <div class="form-group">
-            <label for="setup-confirm">Confirm Password</label>
-            <input type="password" id="setup-confirm" placeholder="Repeat password" required>
-          </div>
-          <button type="submit" class="admin-login-btn" style="margin-top:0.25rem;">
-            CREATE ADMIN ACCOUNT
+          <button type="submit" class="submit-btn" id="signin-btn">
+            <span id="signin-btn-text">SIGN IN TO ADMIN</span>
+            <span class="spinner" id="signin-spinner"></span>
           </button>
         </form>
+      </div>
+
+      <!-- ── CREATE ACCOUNT PANEL ── -->
+      <div class="panel" id="panel-create">
+        <div class="alert" id="create-alert"></div>
+        <form id="create-form" novalidate>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="create-firstname">First Name</label>
+              <input type="text" id="create-firstname" placeholder="John" required>
+            </div>
+            <div class="form-group">
+              <label for="create-lastname">Last Name</label>
+              <input type="text" id="create-lastname" placeholder="Smith" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="create-email">Email Address</label>
+            <input type="email" id="create-email" placeholder="admin@porkysmm.com" required>
+          </div>
+          <div class="form-group">
+            <label for="create-password">Password</label>
+            <input type="password" id="create-password" placeholder="Min. 8 characters" required minlength="8">
+          </div>
+          <div class="form-group">
+            <label for="create-confirm">Confirm Password</label>
+            <input type="password" id="create-confirm" placeholder="Repeat password" required>
+          </div>
+          <button type="submit" class="submit-btn" id="create-btn">
+            <span id="create-btn-text">CREATE ADMIN ACCOUNT</span>
+            <span class="spinner" id="create-spinner"></span>
+          </button>
+        </form>
+      </div>
+
+      <div class="card-footer">
+        <a href="/">← Back to Porky's Meat Market</a>
       </div>
     </div>
   </div>
 
   <script src="/js/utils/dom.js"></script>
   <script src="/js/services/api.js"></script>
-  <script src="/js/modules/theme.js"></script>
   <script src="/js/modules/auth.js"></script>
   <script>
+    /* ── Tab switching ── */
+    function switchTab(tab) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+      document.getElementById('tab-' + tab).classList.add('active');
+      document.getElementById('panel-' + tab).classList.add('active');
+    }
+
+    /* ── Alert helpers ── */
+    function showAlert(id, msg, type) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.textContent = msg;
+      el.className = 'alert' + (type === 'success' ? ' success' : '');
+      el.style.display = 'block';
+    }
+    function hideAlert(id) {
+      const el = document.getElementById(id);
+      if (el) el.style.display = 'none';
+    }
+
+    /* ── Loading state ── */
+    function setLoading(btnId, textId, spinnerId, on) {
+      const btn = document.getElementById(btnId);
+      const txt = document.getElementById(textId);
+      const sp  = document.getElementById(spinnerId);
+      if (btn) btn.disabled = on;
+      if (txt) txt.style.display = on ? 'none' : '';
+      if (sp)  sp.style.display  = on ? 'inline-block' : 'none';
+    }
+
+    /* ── Encode password ── */
+    function encode(str) { return btoa(unescape(encodeURIComponent(str))); }
+
     document.addEventListener('DOMContentLoaded', () => {
 
-      /* ── If already logged in as admin, go straight to dashboard ── */
-      const existing = typeof Auth !== 'undefined' ? Auth.getCurrentUser() : null;
-      if (existing && existing.role === 'admin') {
-        // Clear stale session so user can sign in fresh if they want
-        const forceLogin = new URLSearchParams(window.location.search).get('force');
-        if (!forceLogin) {
+      /* If already signed in as admin, go to dashboard */
+      try {
+        const session = JSON.parse(localStorage.getItem('porky_admin_session'));
+        const force   = new URLSearchParams(window.location.search).get('force');
+        if (session && session.role === 'admin' && !force) {
           window.location.href = '/pages/admin.html';
           return;
         }
-        localStorage.removeItem('porky_admin_session');
-      }
+        if (force) localStorage.removeItem('porky_admin_session');
+      } catch(e) {}
 
-      const form      = document.getElementById('admin-login-form');
-      const alertEl   = document.getElementById('admin-alert');
-      const btn       = document.getElementById('admin-login-btn');
-      const btnText   = document.getElementById('admin-btn-text');
-      const spinner   = document.getElementById('admin-spinner');
-      const setupLink = document.getElementById('setup-link');
-      const setupBox  = document.getElementById('setup-box');
-      const setupForm = document.getElementById('setup-form');
-      const setupAlert = document.getElementById('setup-alert');
-
-      /* ── Show/hide first-time setup panel ── */
-      setupLink.addEventListener('click', (e) => {
+      /* ── SIGN IN ── */
+      document.getElementById('signin-form').addEventListener('submit', (e) => {
         e.preventDefault();
-        setupBox.style.display = setupBox.style.display === 'none' ? 'block' : 'none';
-        alertEl.style.display = 'none';
+        hideAlert('signin-alert');
+
+        const email    = document.getElementById('signin-email').value.trim();
+        const password = document.getElementById('signin-password').value;
+
+        if (!email || !password) {
+          showAlert('signin-alert', 'Please enter your email and password.');
+          return;
+        }
+
+        setLoading('signin-btn', 'signin-btn-text', 'signin-spinner', true);
+
+        try {
+          const users = JSON.parse(localStorage.getItem('porky_users') || '[]');
+          const user  = users.find(u => u.email.toLowerCase() === email.toLowerCase());
+
+          if (!user) {
+            showAlert('signin-alert', 'No account found with this email.');
+            return;
+          }
+          if (user._pw !== encode(password)) {
+            showAlert('signin-alert', 'Incorrect password. Please try again.');
+            return;
+          }
+          if (user.role !== 'admin') {
+            showAlert('signin-alert', 'This account does not have admin privileges.');
+            return;
+          }
+
+          /* Save to admin session key */
+          const session = { ...user };
+          delete session._pw;
+          localStorage.setItem('porky_admin_session', JSON.stringify(session));
+
+          showAlert('signin-alert', '✅ Signed in! Redirecting…', 'success');
+          setTimeout(() => { window.location.href = '/pages/admin.html'; }, 700);
+
+        } catch(err) {
+          showAlert('signin-alert', 'Something went wrong. Please try again.');
+        } finally {
+          setLoading('signin-btn', 'signin-btn-text', 'signin-spinner', false);
+        }
       });
 
-      /* ── Create admin account ── */
-      setupForm.addEventListener('submit', (e) => {
+      /* ── CREATE ACCOUNT ── */
+      document.getElementById('create-form').addEventListener('submit', (e) => {
         e.preventDefault();
-        setupAlert.style.display = 'none';
+        hideAlert('create-alert');
 
-        const firstname = document.getElementById('setup-firstname').value.trim();
-        const lastname  = document.getElementById('setup-lastname').value.trim();
-        const email     = document.getElementById('setup-email').value.trim();
-        const password  = document.getElementById('setup-password').value;
-        const confirm   = document.getElementById('setup-confirm').value;
+        const firstname = document.getElementById('create-firstname').value.trim();
+        const lastname  = document.getElementById('create-lastname').value.trim();
+        const email     = document.getElementById('create-email').value.trim();
+        const password  = document.getElementById('create-password').value;
+        const confirm   = document.getElementById('create-confirm').value;
 
         if (!firstname || !lastname || !email || !password) {
-          setupAlert.textContent = 'Please fill in all fields.';
-          setupAlert.style.display = 'block';
-          return;
+          showAlert('create-alert', 'Please fill in all fields.'); return;
         }
         if (password.length < 8) {
-          setupAlert.textContent = 'Password must be at least 8 characters.';
-          setupAlert.style.display = 'block';
-          return;
+          showAlert('create-alert', 'Password must be at least 8 characters.'); return;
         }
         if (password !== confirm) {
-          setupAlert.textContent = 'Passwords do not match.';
-          setupAlert.style.display = 'block';
-          return;
+          showAlert('create-alert', 'Passwords do not match.'); return;
         }
+
+        setLoading('create-btn', 'create-btn-text', 'create-spinner', true);
 
         try {
           const users = JSON.parse(localStorage.getItem('porky_users') || '[]');
 
-          /* Check if an admin already exists */
           if (users.find(u => u.role === 'admin')) {
-            setupAlert.textContent = 'An admin account already exists. Please sign in above.';
-            setupAlert.style.display = 'block';
+            showAlert('create-alert', 'An admin account already exists. Please sign in.');
             return;
           }
-
-          /* Check email not already taken */
           if (users.find(u => u.email.toLowerCase() === email.toLowerCase())) {
-            setupAlert.textContent = 'That email is already registered. Use a different email.';
-            setupAlert.style.display = 'block';
+            showAlert('create-alert', 'That email is already registered.');
             return;
           }
 
-          const encoded = btoa(unescape(encodeURIComponent(password)));
           const admin = {
             id:        Date.now(),
             firstname: firstname,
@@ -363,75 +310,24 @@
             phone:     '',
             role:      'admin',
             createdAt: new Date().toISOString(),
-            _pw:       encoded
+            _pw:       encode(password)
           };
 
           users.push(admin);
           localStorage.setItem('porky_users', JSON.stringify(users));
 
-          /* Auto sign in — must use the admin session key, not the customer key */
+          /* Sign in immediately */
           const session = { ...admin };
           delete session._pw;
           localStorage.setItem('porky_admin_session', JSON.stringify(session));
 
-          setupAlert.style.background = 'rgba(39,174,96,0.1)';
-          setupAlert.style.borderColor = '#27AE60';
-          setupAlert.style.color = '#27AE60';
-          setupAlert.textContent = '✅ Admin account created! Redirecting…';
-          setupAlert.style.display = 'block';
+          showAlert('create-alert', '✅ Admin account created! Redirecting…', 'success');
+          setTimeout(() => { window.location.href = '/pages/admin.html'; }, 800);
 
-          setTimeout(() => { window.location.href = '/pages/admin.html'; }, 1000);
-
-        } catch (err) {
-          setupAlert.textContent = 'Something went wrong. Please try again.';
-          setupAlert.style.display = 'block';
-        }
-      });
-
-      /* ── Sign in ── */
-      form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        alertEl.style.display = 'none';
-
-        const email    = document.getElementById('admin-email').value.trim();
-        const password = document.getElementById('admin-password').value;
-
-        if (!email || !password) {
-          alertEl.textContent = 'Please enter your email and password.';
-          alertEl.style.display = 'block';
-          return;
-        }
-
-        btn.disabled = true;
-        btnText.style.display = 'none';
-        spinner.style.display = 'inline-block';
-
-        try {
-          const result = await Auth.login(email, password);
-
-          if (!result.success) {
-            alertEl.textContent = result.error || 'Invalid credentials.';
-            alertEl.style.display = 'block';
-            return;
-          }
-
-          const user = result.user || Auth.getCurrentUser();
-          if (!user || user.role !== 'admin') {
-            Auth._clearSession();
-            alertEl.textContent = 'Access denied. This account does not have admin privileges.';
-            alertEl.style.display = 'block';
-            return;
-          }
-
-          window.location.href = '/pages/admin.html';
-
-        } catch (err) {
-          alertEl.textContent = 'Something went wrong. Please try again.';
-          alertEl.style.display = 'block';
+        } catch(err) {
+          showAlert('create-alert', 'Something went wrong. Please try again.');
         } finally {
-          btn.disabled = false;
-          btnText.style.display = 'inline';
-          spinner.style.display = 'none';
+          setLoading('create-btn', 'create-btn-text', 'create-spinner', false);
         }
       });
     });
