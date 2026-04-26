@@ -178,7 +178,7 @@ const Products = {
         price: 89.99,
         unit: 'per kg',
         category: 'pork',
-        image_url: '/assets/Images/Pork Lion Chops.jpg',
+        image_url: '/assets/Images/Pork Shoulder chops.jpg',
         description: 'Thick-cut pork shoulder chops, great for braai or pan-fry.'
       },
       {
